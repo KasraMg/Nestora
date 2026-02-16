@@ -15,9 +15,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", require("./src/routes/auth.routes"));
 app.use("/api", require("./src/routes/products.routes"));
+app.use("/api", require("./src/routes/banner.routes"));
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
+}); 
