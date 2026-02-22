@@ -1,7 +1,7 @@
 const Categories = require("../models/categories.model");
 
 exports.createCategory = async (req, res) => {
-  const { name, slug, isActive } = req.body;
+  const { name, slug, image, isActive } = req.body;
 
   try {
     let category = await Categories.findOne({ slug });
@@ -11,6 +11,7 @@ exports.createCategory = async (req, res) => {
     category = new Categories({
       name,
       slug,
+      image,
       isActive,
     });
     await category.save();
@@ -20,6 +21,7 @@ exports.createCategory = async (req, res) => {
       category: {
         name: category.name,
         slug: category.slug,
+        image: category.image,
         isActive: category.isActive,
         id: category.id,
       },

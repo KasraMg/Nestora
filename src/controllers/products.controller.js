@@ -73,7 +73,7 @@ exports.createProduct = async (req, res) => {
   try {
     let product = await Products.findOne({ code });
     if (product)
-      return res.status(400).json({ message: "product already exists" });
+      return res.status(400).json({ message: "کالایی با ای شناسه قبلا ثبت شده است" });
 
     product = new Products({
       name,
@@ -88,6 +88,7 @@ exports.createProduct = async (req, res) => {
     await product.save();
 
     res.status(201).json({
+      message: "کالا با موفقیت ساخته شد",
       product: {
         name: product.name,
         price: product.price,

@@ -6,6 +6,11 @@ const app = express();
 
 connectDB();
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerFile = require("./swagger-output.json");
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -22,4 +27,4 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-}); 
+});

@@ -9,7 +9,11 @@ const categoriesSchema = new mongoose.Schema(
     slug: {
       type: String,
       required: [true, "اسلاگ کتگوری الزامی است"],
-    }, 
+    },
+    image: {
+      type: String,
+      required: [true, "تصویر کتگوری الزامی است"],
+    },
     isActive: {
       type: Boolean,
       default: true,
