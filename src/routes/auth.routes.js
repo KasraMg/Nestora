@@ -28,14 +28,21 @@ router.post(
 
 router.get(
   "/getMe",
-  /*  
+  /*   
       #swagger.tags = ['Auth']
       #swagger.summary = 'Get current user by token'
       #swagger.security = [{
             "bearerAuth": []
       }]
-      #swagger.parameters = []
-     
+      #swagger.parameters['authorization'] = {
+            in: 'header',
+            description: 'Bearer token',
+            required: true,
+            type: 'string'
+      }
+      #swagger.responses[200] = {
+            description: 'User data'
+      }
   */
   getMe,
 );

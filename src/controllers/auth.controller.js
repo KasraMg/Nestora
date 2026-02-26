@@ -14,8 +14,7 @@ exports.getMe = async (req, res) => {
       ? authHeader.split(" ")[1]
       : authHeader;
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("decoded:", decoded);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
 
     const user = await User.findById(decoded.id).select("-password");
 
