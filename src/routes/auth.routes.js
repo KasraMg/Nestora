@@ -1,6 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { register, login, getMe } = require("../controllers/auth.controller");
+const {
+  register,
+  login,
+  getMe,
+  impersonateUser,
+} = require("../controllers/auth.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
+const adminMiddleware = require("../middlewares/admin.middleware");
 
 router.post(
   "/register",
@@ -44,6 +51,19 @@ router.get(
             description: 'User data'
       }
   */
+  authMiddleware,
   getMe,
 );
+
+router.post(
+  "/impersonate/:userId",
+  /*  
+      #swagger.tags = ['Auth']
+ 
+  */
+  authMiddleware,
+  adminMiddleware,
+  impersonateUser,
+);
+
 module.exports = router;
