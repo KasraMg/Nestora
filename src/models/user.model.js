@@ -7,7 +7,19 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true },
     phone: { type: Number, required: true, unique: true },
     password: { type: String, required: true },
-
+    cart: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Products",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
+      },
+    ],
     role: {
       type: String,
       enum: ["user", "admin"],
