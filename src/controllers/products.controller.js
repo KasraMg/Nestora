@@ -43,28 +43,68 @@ exports.deleteProduct = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
   try {
-    const { price, category } = req.query;
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const { price, category, search, sort, minPrice, maxPrice } = req.query;
 
     const filter = {};
-
-    if (price) {
-      filter.price = Number(price);
-    }
 
     if (category) {
       filter.category = category;
     }
 
-    const products = await Products.find(filter);
+    if (price) {
+      filter.price = Number(price);
+    }
 
-    return res.status(200).json(products);
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    if (search) {
+      filter.title = { $regex: search, $options: "i" };
+    }
+
+    let sortQuery = {};
+
+    if (sort) {
+      if (sort.startsWith("-")) {
+        sortQuery[sort.substring(1)] = -1;
+      } else {
+        sortQuery[sort] = 1;
+      }
+    }
+
+    const products = await Products.find(filter)
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Products.countDocuments(filter);
+
+    res.status(200).json({
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      products
+    });
+
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       message: "خطا در دریافت محصولات",
-      error: error.message,
+      error: error.message
     });
   }
 };
+
+
 
 exports.createProduct = async (req, res) => {
   const { name, price, priceWithoutOff, star, off, image, category, code } =

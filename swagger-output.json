@@ -179,12 +179,42 @@
         "description": "",
         "parameters": [
           {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
             "name": "price",
             "in": "query",
             "type": "string"
           },
           {
             "name": "category",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "maxPrice",
             "in": "query",
             "type": "string"
           }
@@ -662,6 +692,28 @@
         ],
         "summary": "Get articles",
         "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -781,7 +833,7 @@
         ]
       }
     },
-    "/api/removeFromCart": {
+    "/api/getProducts": {
       "get": {
         "tags": [
           "Cart"

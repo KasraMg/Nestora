@@ -63,8 +63,27 @@ exports.getArticle = async (req, res) => {
 
 exports.getArticles = async (req, res) => {
   try {
-    let articles = await Articles.find();
-    if (!articles)
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const { name, category } = req.query;
+
+    const filter = {};
+
+    console.log(category);
+    console.log(name);
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (name) {
+      filter.name = { $regex: name, $options: "i" };
+    }
+
+    let articles = await Articles.find(filter).skip(skip).limit(limit);
+    if (articles.length == 0)
       return res.status(404).json({
         message: "مقاله ای یافت نشد",
       });
