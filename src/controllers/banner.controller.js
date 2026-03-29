@@ -40,7 +40,7 @@ exports.getBanners = async (req, res) => {
       banners: banners,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 
@@ -60,6 +60,6 @@ exports.deleteBanner = async (req, res) => {
       product: deletedBanner,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };

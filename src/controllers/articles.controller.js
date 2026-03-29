@@ -39,7 +39,7 @@ exports.createArticle = async (req, res) => {
       const firstError = Object.values(error.errors)[0].message;
       return res.status(400).json({ message: firstError });
     }
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 
@@ -57,7 +57,7 @@ exports.getArticle = async (req, res) => {
       article,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 
@@ -70,9 +70,6 @@ exports.getArticles = async (req, res) => {
     const { name, category } = req.query;
 
     const filter = {};
-
-    console.log(category);
-    console.log(name);
 
     if (category) {
       filter.category = category;
@@ -93,7 +90,7 @@ exports.getArticles = async (req, res) => {
       articles,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 
@@ -118,7 +115,7 @@ exports.deleteArticle = async (req, res) => {
       product: deletedArticle,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 

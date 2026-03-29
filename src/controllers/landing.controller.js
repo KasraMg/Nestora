@@ -17,6 +17,6 @@ exports.getLandingData = async (req, res) => {
       banner,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطای سرور" });
+    next(error);
   }
 };

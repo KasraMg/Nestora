@@ -12,7 +12,7 @@ exports.getProduct = async (req, res) => {
 
     return res.json(product);
   } catch (error) {
-    return res.status(500).json({ message: "خطای سرور" });
+    next(error);
   }
 };
 
@@ -37,13 +37,12 @@ exports.deleteProduct = async (req, res) => {
       product: deletedProduct,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 
 exports.getProducts = async (req, res) => {
   try {
-
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
@@ -93,18 +92,12 @@ exports.getProducts = async (req, res) => {
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      products
+      products,
     });
-
   } catch (error) {
-    res.status(500).json({
-      message: "خطا در دریافت محصولات",
-      error: error.message
-    });
+    next(error);
   }
 };
-
-
 
 exports.createProduct = async (req, res) => {
   const { name, price, priceWithoutOff, star, off, image, category, code } =
@@ -113,7 +106,9 @@ exports.createProduct = async (req, res) => {
   try {
     let product = await Products.findOne({ code });
     if (product)
-      return res.status(400).json({ message: "کالایی با ای شناسه قبلا ثبت شده است" });
+      return res
+        .status(400)
+        .json({ message: "کالایی با ای شناسه قبلا ثبت شده است" });
 
     product = new Products({
       name,

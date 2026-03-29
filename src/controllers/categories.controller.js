@@ -41,7 +41,7 @@ exports.getCategories = async (req, res) => {
     }
     res.status(200).json(categories);
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 
@@ -66,6 +66,6 @@ exports.deleteCategory = async (req, res) => {
       category: deletedCategory,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };

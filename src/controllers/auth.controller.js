@@ -8,13 +8,13 @@ exports.getMe = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ message: "کاربری یافت نشد" });
-    } 
+    }
     res.json({
       ...user.toObject(),
       impersonatedBy: req.user.impersonatedBy || null,
     });
   } catch (error) {
-    res.status(500).json({ message: "خطای سرور" });
+    next(error);
   }
 };
 
@@ -44,7 +44,7 @@ exports.login = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 

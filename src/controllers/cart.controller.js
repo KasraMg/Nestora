@@ -34,7 +34,7 @@ exports.addToCart = async (req, res) => {
       cart: user.cart,
     });
   } catch (error) {
-    res.status(500).json({ message: "خطای سرور" });
+    next(error);
   }
 };
 
@@ -69,7 +69,7 @@ exports.removeFromCart = async (req, res) => {
       cart: user.cart,
     });
   } catch (error) {
-    res.status(500).json({ message: "خطای سرور" });
+    next(error);
   }
 };
 exports.getUserCart = async (req, res) => {
@@ -82,6 +82,6 @@ exports.getUserCart = async (req, res) => {
 
     res.status(200).json(user.cart);
   } catch (error) {
-    res.status(500).json({ message: "خطای سرور" });
+    next(error);
   }
 };
