@@ -25,10 +25,7 @@ exports.createBanner = async (req, res) => {
       },
     });
   } catch (error) {
-    if (error.name === "ValidationError") {
-      const firstError = Object.values(error.errors)[0].message;
-      return res.status(400).json({ message: firstError });
-    }
+    next(error)
   }
 };
 
