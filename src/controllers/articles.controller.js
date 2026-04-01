@@ -1,6 +1,6 @@
 const Articles = require("../models/articles.model");
 
-exports.createArticle = async (req, res) => {
+exports.createArticle = async (req, res, next) => {
   const { name, slug, image, body, short_description, category, isActive } =
     req.body;
   try {
@@ -39,7 +39,7 @@ exports.createArticle = async (req, res) => {
   }
 };
 
-exports.getArticle = async (req, res) => {
+exports.getArticle = async (req, res, next) => {
   const { slug } = req.params;
   try {
     let article = await Articles.findOne({ slug });
@@ -57,7 +57,7 @@ exports.getArticle = async (req, res) => {
   }
 };
 
-exports.getArticles = async (req, res) => {
+exports.getArticles = async (req, res, next) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
@@ -90,7 +90,7 @@ exports.getArticles = async (req, res) => {
   }
 };
 
-exports.deleteArticle = async (req, res) => {
+exports.deleteArticle = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
@@ -115,7 +115,7 @@ exports.deleteArticle = async (req, res) => {
   }
 };
 
-exports.editArticle = async (req, res) => {
+exports.editArticle = async (req, res, next) => {
   const { slug } = req.params;
   const { name, newSlug, image, body, short_description, category, isActive } =
     req.body;

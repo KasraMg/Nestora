@@ -1,6 +1,6 @@
 const Categories = require("../models/categories.model");
 
-exports.createCategory = async (req, res) => {
+exports.createCategory = async (req, res, next) => {
   const { name, slug, image, isActive } = req.body;
 
   try {
@@ -30,7 +30,7 @@ exports.createCategory = async (req, res) => {
   next(error);
 };
 
-exports.getCategories = async (req, res) => {
+exports.getCategories = async (req, res, next) => {
   try {
     const categories = await Categories.find();
     if (!categories) {
@@ -42,7 +42,7 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-exports.deleteCategory = async (req, res) => {
+exports.deleteCategory = async (req, res, next) => {
   try {
     const { slug } = req.params;
 

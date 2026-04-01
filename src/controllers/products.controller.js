@@ -1,6 +1,6 @@
 const Products = require("../models/products.model");
 
-exports.getProduct = async (req, res) => {
+exports.getProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
 
@@ -16,7 +16,7 @@ exports.getProduct = async (req, res) => {
   }
 };
 
-exports.deleteProduct = async (req, res) => {
+exports.deleteProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
 
@@ -41,7 +41,7 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-exports.getProducts = async (req, res) => {
+exports.getProducts = async (req, res, next) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
@@ -99,7 +99,7 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-exports.createProduct = async (req, res) => {
+exports.createProduct = async (req, res, next) => {
   const { name, price, priceWithoutOff, star, off, image, category, code } =
     req.body;
 

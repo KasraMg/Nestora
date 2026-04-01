@@ -2,7 +2,7 @@ const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-exports.getMe = async (req, res) => {
+exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
 
@@ -18,7 +18,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { phone, password } = req.body;
   try {
     const user = await User.findOne({ phone });
@@ -48,7 +48,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.register = async (req, res) => {
+exports.register = async (req, res, next) => {
   const { name, phone, email, password } = req.body;
   try {
     let user = await User.findOne({ phone });
@@ -78,7 +78,7 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.impersonateUser = async (req, res) => {
+exports.impersonateUser = async (req, res, next) => {
   const targetUser = await User.findById(req.params.userId);
 
   if (!targetUser) {

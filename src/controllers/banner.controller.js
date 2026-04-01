@@ -1,6 +1,6 @@
 const Banner = require("../models/banner.model");
 
-exports.createBanner = async (req, res) => {
+exports.createBanner = async (req, res, next) => {
   const { position, url, image, isActive } = req.body;
 
   try {
@@ -29,7 +29,7 @@ exports.createBanner = async (req, res) => {
   }
 };
 
-exports.getBanners = async (req, res) => {
+exports.getBanners = async (req, res, next) => {
   try {
     const banners = await Banner.find();
     res.status(201).json({
@@ -41,7 +41,7 @@ exports.getBanners = async (req, res) => {
   }
 };
 
-exports.deleteBanner = async (req, res) => {
+exports.deleteBanner = async (req, res, next) => {
   const { id } = req.params;
   try {
     if (!id)

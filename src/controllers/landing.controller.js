@@ -3,7 +3,7 @@ const Categories = require("../models/categories.model");
 const Products = require("../models/products.model");
 const Articles = require("../models/articles.model");
 
-exports.getLandingData = async (req, res) => {
+exports.getLandingData = async (req, res, next) => {
   try {
     const products = await Products.find().sort({ createdAt: -1 }).limit(5);
     const articles = await Articles.find();
