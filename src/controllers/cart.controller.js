@@ -37,7 +37,6 @@ exports.addToCart = async (req, res) => {
     next(error);
   }
 };
-
 exports.removeFromCart = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -81,6 +80,26 @@ exports.getUserCart = async (req, res) => {
     }
 
     res.status(200).json(user.cart);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resetUserCart = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "کاربری یافت نشد" });
+    }
+
+    user.cart = [];
+    await user.save();
+
+    res.status(200).json({
+      message: "محصول با موفقیت از سبد خرید شما حذف شد",
+      cart: user.cart,
+    });
   } catch (error) {
     next(error);
   }

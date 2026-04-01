@@ -4,6 +4,7 @@ const {
   addToCart,
   removeFromCart,
   getUserCart,
+  resetUserCart
 } = require("../controllers/cart.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
@@ -57,6 +58,23 @@ router.get(
   */
   authMiddleware,
   getUserCart,
+);
+router.delete(
+  "/resetUserCart",
+  /*  #swagger.tags = ['Cart']
+      #swagger.summary = 'get user Products from cart'
+         #swagger.security = [{
+            "bearerAuth": []
+      }]
+      #swagger.parameters['authorization'] = {
+            in: 'header',
+            description: 'Bearer token',
+            required: true,
+            type: 'string'
+      }
+  */
+  authMiddleware,
+  resetUserCart,
 );
 
 module.exports = router;
