@@ -1,7 +1,7 @@
 const User = require("../models/user.model");
 const Products = require("../models/products.model");
 
-exports.addToCart = async (req, res) => {
+exports.addToCart = async (req, res, next) => {
   try {
     const { code } = req.params;
 
@@ -37,7 +37,7 @@ exports.addToCart = async (req, res) => {
     next(error);
   }
 };
-exports.removeFromCart = async (req, res) => {
+exports.removeFromCart = async (req, res, next) => {
   try {
     const { productId } = req.params;
 
@@ -71,21 +71,47 @@ exports.removeFromCart = async (req, res) => {
     next(error);
   }
 };
-exports.getUserCart = async (req, res) => {
+exports.getUserCart = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id)
+      .populate("cart.product")
+      .select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "کاربری یافت نشد" });
     }
 
-    res.status(200).json(user.cart);
+    let totalPrice = 0;
+    let totalItems = 0;
+
+    const cartDetails = user.cart
+      .map((item) => {
+        if (!item.product) {
+          return null;
+        }
+
+        const itemPrice = item.product.price * item.quantity;
+        totalPrice += itemPrice;
+        totalItems += item.quantity;
+
+        return {
+          product: item.product,
+          quantity: item.quantity,
+          itemPrice: itemPrice,
+        };
+      })
+      .filter((item) => item !== null);
+
+    res.status(200).json({
+      items: cartDetails,
+      totalItems: totalItems,
+      totalPrice: totalPrice,
+    });
   } catch (error) {
     next(error);
   }
-};
-
-exports.resetUserCart = async (req, res) => {
+}; 
+exports.resetUserCart = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
 
@@ -104,3 +130,4 @@ exports.resetUserCart = async (req, res) => {
     next(error);
   }
 };
+ 

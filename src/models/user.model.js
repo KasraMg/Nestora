@@ -7,6 +7,15 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true },
     phone: { type: Number, required: true, unique: true },
     password: { type: String, required: true },
+    wishlist: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Products",
+          required: true,
+        },
+      },
+    ],
     cart: [
       {
         product: {
@@ -16,7 +25,12 @@ const userSchema = new mongoose.Schema(
         },
         quantity: {
           type: Number,
+          required: true,
           default: 1,
+        },
+        price: {
+          type: Number,
+          required: true,
         },
       },
     ],
