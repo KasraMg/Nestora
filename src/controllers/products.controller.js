@@ -108,7 +108,7 @@ exports.createProduct = async (req, res, next) => {
     if (product)
       return res
         .status(400)
-        .json({ message: "کالایی با ای شناسه قبلا ثبت شده است" });
+        .json({ message: "کالایی با این شناسه قبلا ثبت شده است" });
 
     product = new Products({
       name,
