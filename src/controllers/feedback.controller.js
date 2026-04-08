@@ -104,15 +104,41 @@ exports.getUserFeedbacks = async (req, res, next) => {
     next(error);
   }
 };
+
 exports.getProductFeedbacks = async (req, res, next) => {
   try {
     const { code } = req.params;
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
     const product = await Products.findOne({ code });
+
     if (!product) {
       return res.status(404).json({ message: "محصولی با این کد یافت نشد" });
-    } 
-    const feedback = await Feedback.find({ product: product._id });
-    res.status(200).json(feedback);
+    }
+
+    const feedbacks = await Feedback.find({ product: product._id })
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const allFeedbacks = await Feedback.find({ product: product._id });
+
+    const totalRates = allFeedbacks.reduce((sum, f) => sum + f.rating, 0);
+
+    const mainRate =
+      allFeedbacks.length > 0 ? totalRates / allFeedbacks.length : 0;
+
+    res.status(200).json({
+      mainRate,
+      total: allFeedbacks.length,
+      page,
+      pages: Math.ceil(allFeedbacks.length / limit),
+      feedbacks,
+    });
   } catch (error) {
     next(error);
   }
