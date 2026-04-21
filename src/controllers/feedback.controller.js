@@ -119,27 +119,40 @@ exports.getProductFeedbacks = async (req, res, next) => {
     if (!product) {
       return res.status(404).json({ message: "محصولی با این کد یافت نشد" });
     }
-
+ 
     const feedbacks = await Feedback.find({ product: product._id })
+      .populate("user", "name")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
+ 
+    const total = await Feedback.countDocuments({
+      product: product._id,
+    });
+ 
+    const stats = await Feedback.aggregate([
+      {
+        $match: { product: product._id },
+      },
+      {
+        $group: {
+          _id: "$product",
+          avgRating: { $avg: "$rating" },
+        },
+      },
+    ]);
 
-    const allFeedbacks = await Feedback.find({ product: product._id });
-
-    const totalRates = allFeedbacks.reduce((sum, f) => sum + f.rating, 0);
-
-    const mainRate =
-      allFeedbacks.length > 0 ? totalRates / allFeedbacks.length : 0;
+    const mainRate = stats.length > 0 ? stats[0].avgRating : 0;
 
     res.status(200).json({
       mainRate,
-      total: allFeedbacks.length,
+      total,
       page,
-      pages: Math.ceil(allFeedbacks.length / limit),
+      pages: Math.ceil(total / limit),
       feedbacks,
     });
   } catch (error) {
     next(error);
   }
 };
+

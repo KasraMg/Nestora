@@ -48,44 +48,52 @@ exports.getProducts = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
 
-    const { price, category, search, sort, minPrice, maxPrice } = req.query;
+    const { category, search, minPrice, maxPrice, sort } = req.query;
 
-    const filter = {};
+    const match = {};
 
     if (category) {
-      filter.category = category;
-    }
-
-    if (price) {
-      filter.price = Number(price);
-    }
-
-    if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = Number(minPrice);
-      if (maxPrice) filter.price.$lte = Number(maxPrice);
+      match.category = category;
     }
 
     if (search) {
-      filter.title = { $regex: search, $options: "i" };
+      match.title = { $regex: search.trim(), $options: "i" };
     }
 
-    let sortQuery = {};
+    if (minPrice || maxPrice) {
+      match.price = {};
+      if (minPrice) match.price.$gte = Number(minPrice);
+      if (maxPrice) match.price.$lte = Number(maxPrice);
+    }
+
+    let sortStage = { createdAt: -1 };
 
     if (sort) {
       if (sort.startsWith("-")) {
-        sortQuery[sort.substring(1)] = -1;
+        sortStage = { [sort.substring(1)]: -1 };
       } else {
-        sortQuery[sort] = 1;
+        sortStage = { [sort]: 1 };
       }
     }
 
-    const products = await Products.find(filter)
-      .sort(sortQuery)
-      .skip(skip)
-      .limit(limit);
+    const result = await Products.aggregate([
+      { $match: match },
 
-    const total = await Products.countDocuments(filter);
+      {
+        $facet: {
+          products: [
+            { $sort: sortStage },
+            { $skip: skip },
+            { $limit: limit },
+          ],
+
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ]);
+
+    const products = result[0].products;
+    const total = result[0].totalCount[0]?.count || 0;
 
     res.status(200).json({
       page,
@@ -98,6 +106,7 @@ exports.getProducts = async (req, res, next) => {
     next(error);
   }
 };
+
 
 exports.createProduct = async (req, res, next) => {
   const { name, price, priceWithoutOff, star, off, image, category, code } =
