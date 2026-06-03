@@ -1,6 +1,6 @@
 const Categories = require("../models/categories.model");
 
-exports.createCategory = async (req, res) => {
+exports.createCategory = async (req, res, next) => {
   const { name, slug, image, isActive } = req.body;
 
   try {
@@ -27,13 +27,10 @@ exports.createCategory = async (req, res) => {
       },
     });
   } catch (error) {}
-  if (error.name === "ValidationError") {
-    const firstError = Object.values(error.errors)[0].message;
-    return res.status(400).json({ message: firstError });
-  }
+  next(error);
 };
 
-exports.getCategories = async (req, res) => {
+exports.getCategories = async (req, res, next) => {
   try {
     const categories = await Categories.find();
     if (!categories) {
@@ -41,11 +38,11 @@ exports.getCategories = async (req, res) => {
     }
     res.status(200).json(categories);
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };
 
-exports.deleteCategory = async (req, res) => {
+exports.deleteCategory = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
@@ -66,6 +63,6 @@ exports.deleteCategory = async (req, res) => {
       category: deletedCategory,
     });
   } catch (error) {
-    return res.status(500).json({ message: "خطایی غیر منتظره رخ داد" });
+    next(error);
   }
 };

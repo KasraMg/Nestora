@@ -2,33 +2,23 @@ const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-exports.getMe = async (req, res) => {
+exports.getMe = async (req, res, next) => {
   try {
-    const authHeader = req.headers["authorization"];
-
-    if (!authHeader) {
-      return res.status(401).json({ message: "توکنی یافت نشد" });
-    }
-
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-
-    const user = await User.findById(decoded.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "کاربری یافت نشد" });
     }
-
-    res.json(user);
+    res.json({
+      ...user.toObject(),
+      impersonatedBy: req.user.impersonatedBy || null,
+    });
   } catch (error) {
-    return res.status(401).json({ message: "توکن نامعتبر است" });
+    next(error);
   }
 };
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { phone, password } = req.body;
   try {
     const user = await User.findOne({ phone });
@@ -46,25 +36,28 @@ exports.login = async (req, res) => {
 
     res.json({
       token,
+      message: "با موفقیت وارد شدید",
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
         role: user.role,
       },
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.register = async (req, res) => {
-  const { name, phone, email, password } = req.body;
+exports.register = async (req, res, next) => {
+  const { name, phone, password } = req.body;
   try {
     let user = await User.findOne({ phone });
-    if (user) return res.status(400).json({ message: "User already exists" });
+    if (user)
+      return res
+        .status(400)
+        .json({ message: "حسابی با این شماره قبلا ثبت شده است" });
 
-    user = new User({ name, phone, email, password });
+    user = new User({ name, phone, password });
     await user.save();
 
     const token = jwt.sign(
@@ -75,18 +68,42 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       token,
+      message: "با موفقیت ثبت نام شدید", 
       user: {
         id: user._id,
         name: user.name,
         phone: user.phone,
-        email: user.email,
         role: user.role,
       },
     });
   } catch (error) {
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map((e) => e.message);
-      return res.status(400).json({ message: messages.join(" ") });
-    }
+    next(error);
   }
+};
+
+exports.impersonateUser = async (req, res, next) => {
+  const targetUser = await User.findById(req.params.userId);
+
+  if (!targetUser) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const token = jwt.sign(
+    {
+      id: targetUser._id,
+      role: targetUser.role,
+      impersonatedBy: req.user.id,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" },
+  );
+
+  res.json({
+    token,
+    impersonatedUser: {
+      id: targetUser._id,
+      name: targetUser.name,
+      phone: targetUser.phone,
+    },
+  });
 };
