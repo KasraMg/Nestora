@@ -36,10 +36,10 @@ exports.login = async (req, res, next) => {
 
     res.json({
       token,
+      message: "با موفقیت وارد شدید",
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
         role: user.role,
       },
     });
@@ -49,12 +49,15 @@ exports.login = async (req, res, next) => {
 };
 
 exports.register = async (req, res, next) => {
-  const { name, phone, email, password } = req.body;
+  const { name, phone, password } = req.body;
   try {
     let user = await User.findOne({ phone });
-    if (user) return res.status(400).json({ message: "User already exists" });
+    if (user)
+      return res
+        .status(400)
+        .json({ message: "حسابی با این شماره قبلا ثبت شده است" });
 
-    user = new User({ name, phone, email, password });
+    user = new User({ name, phone, password });
     await user.save();
 
     const token = jwt.sign(
@@ -65,11 +68,11 @@ exports.register = async (req, res, next) => {
 
     res.status(201).json({
       token,
+      message: "با موفقیت ثبت نام شدید", 
       user: {
         id: user._id,
         name: user.name,
         phone: user.phone,
-        email: user.email,
         role: user.role,
       },
     });

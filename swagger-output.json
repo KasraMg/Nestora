@@ -41,9 +41,6 @@
                 "phone": {
                   "example": "any"
                 },
-                "email": {
-                  "example": "any"
-                },
                 "password": {
                   "example": "any"
                 }
@@ -183,11 +180,6 @@
             "type": "string"
           },
           {
-            "name": "price",
-            "in": "query",
-            "type": "string"
-          },
-          {
             "name": "category",
             "in": "query",
             "type": "string"
@@ -198,17 +190,17 @@
             "type": "string"
           },
           {
-            "name": "sort",
-            "in": "query",
-            "type": "string"
-          },
-          {
             "name": "minPrice",
             "in": "query",
             "type": "string"
           },
           {
             "name": "maxPrice",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "sort",
             "in": "query",
             "type": "string"
           }
@@ -963,6 +955,16 @@
             "name": "code",
             "in": "path",
             "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
             "type": "string"
           }
         ],
