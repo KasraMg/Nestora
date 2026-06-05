@@ -2,15 +2,16 @@ const express = require("express");
 const { getLandingData } = require("../controllers/landing.controller");
 const router = express.Router();
 
-router.get(
-  "/landing",
-  /*
-         #swagger.tags = ['Landing']
-      #swagger.summary = 'Get landing data'
-    */
-  getLandingData,
-);
-
+/**
+ * @openapi
+ * /landing:
+ *   get:
+ *     tags: [Landing]
+ *     summary: Get landing page data
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved landing data
+ */
+router.get("/landing", getLandingData);
 
 module.exports = router;
-

@@ -81,11 +81,7 @@ exports.getProducts = async (req, res, next) => {
 
       {
         $facet: {
-          products: [
-            { $sort: sortStage },
-            { $skip: skip },
-            { $limit: limit },
-          ],
+          products: [{ $sort: sortStage }, { $skip: skip }, { $limit: limit }],
 
           totalCount: [{ $count: "count" }],
         },
@@ -107,11 +103,10 @@ exports.getProducts = async (req, res, next) => {
   }
 };
 
-
 exports.createProduct = async (req, res, next) => {
-  const { name, price, priceWithoutOff, star, off, image, category, code } =
-    req.body;
-
+  const { name, price, priceWithoutOff, star, off, category, code } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
+  
   try {
     let product = await Products.findOne({ code });
     if (product)

@@ -9,61 +9,117 @@ const {
 const authMiddleware = require("../middlewares/auth.middleware");
 const adminMiddleware = require("../middlewares/admin.middleware");
 
-router.post(
-  "/register",
-  /*  
-      #swagger.tags = ['Auth']
-      #swagger.summary = 'Register new user' 
-      #swagger.responses[201] = {
-          description: 'User created successfully' 
-      }
-  */
-  register,
-);
+/**
+ * @openapi
+ * /register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post("/register", register);
 
-router.post(
-  "/login",
-  /*  
-      #swagger.tags = ['Auth']
-      #swagger.summary = 'Login user' 
-      #swagger.responses[200] = {
-          description: 'Login successful' 
-      }
-  */
-  login,
-);
+/**
+ * @openapi
+ * /login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Login user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ */
+router.post("/login", login);
 
-router.get(
-  "/getMe",
-  /*   
-      #swagger.tags = ['Auth']
-      #swagger.summary = 'Get current user by token'
-      #swagger.security = [{
-            "bearerAuth": []
-      }]
-      #swagger.parameters['authorization'] = {
-            in: 'header',
-            description: 'Bearer token',
-            required: true,
-            type: 'string'
-      }
-      #swagger.responses[200] = {
-            description: 'User data'
-      }
-  */
-  authMiddleware,
-  getMe,
-);
+/**
+ * @openapi
+ * /getMe:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Get current user by token
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Bearer token
+ *     responses:
+ *       200:
+ *         description: User data retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/getMe", authMiddleware, getMe);
 
-router.post(
-  "/impersonate/:userId",
-  /*  
-      #swagger.tags = ['Auth']
- 
-  */
-  authMiddleware,
-  adminMiddleware,
-  impersonateUser,
-);
+/**
+ * @openapi
+ * /impersonate/{userId}:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Impersonate user (Admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Bearer token
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID to impersonate
+ *     responses:
+ *       200:
+ *         description: Impersonation successful
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin only
+ */
+router.post("/impersonate/:userId", authMiddleware, adminMiddleware, impersonateUser);
 
 module.exports = router;

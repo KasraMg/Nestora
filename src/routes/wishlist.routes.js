@@ -3,39 +3,56 @@ const router = express.Router();
 const { getUserWishlist, toggleWishlist } = require("../controllers/wishlist.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
-router.get(
-  "/getUserWishlist",
-  /*  #swagger.tags = ['Wishlist']
-      #swagger.summary = 'get user Products from wishlist'
-         #swagger.security = [{
-            "bearerAuth": []
-      }]
-      #swagger.parameters['authorization'] = {
-            in: 'header',
-            description: 'Bearer token',
-            required: true,
-            type: 'string'
-      }
-  */
-  authMiddleware,
-  getUserWishlist,
-);
-router.post(
-  "/toggleWishlist/:code",
-  /*  #swagger.tags = ['Wishlist']
-      #swagger.summary = 'add & remove Products at user wishlist'
-         #swagger.security = [{
-            "bearerAuth": []
-      }]
-      #swagger.parameters['authorization'] = {
-            in: 'header',
-            description: 'Bearer token',
-            required: true,
-            type: 'string'
-      }
-  */
-  authMiddleware,
-  toggleWishlist,
-);
+/**
+ * @openapi
+ * /getUserWishlist:
+ *   get:
+ *     tags: [Wishlist]
+ *     summary: Get user products from wishlist
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Bearer token
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved wishlist
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/getUserWishlist", authMiddleware, getUserWishlist);
+
+/**
+ * @openapi
+ * /toggleWishlist/{code}:
+ *   post:
+ *     tags: [Wishlist]
+ *     summary: Add & remove products from user wishlist
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Bearer token
+ *       - in: path
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product code
+ *     responses:
+ *       200:
+ *         description: Successfully toggled wishlist
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/toggleWishlist/:code", authMiddleware, toggleWishlist);
 
 module.exports = router;
