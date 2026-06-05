@@ -1,5 +1,4 @@
-// swagger.js
-const swaggerJsdoc = require('swagger-jsdoc');
+ const swaggerJsdoc = require('swagger-jsdoc');
 
 const options = {
   definition: {
@@ -15,7 +14,7 @@ const options = {
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT || 5000}`,
+        url: `http://localhost:${process.env.PORT || 5000}/api`,
         description: "Development server",
       },
     ],

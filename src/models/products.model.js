@@ -10,7 +10,7 @@ const productsSchema = new mongoose.Schema(
     priceWithoutOff: { type: Number, default: null },
     star: { type: Number, required: [true, "امتیاز الزامی است"] },
     off: { type: Number, default: null },
-    image: { type: String, required: [true, "تصویر الزامی است"] },
+    images: { type:  [{ type: String }], required: [true, "تصویر الزامی است"] },
     category: { type: String, required: [true, "دسته بندی الزامی است"] },
     code: {
       type: Number,

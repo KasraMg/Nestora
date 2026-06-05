@@ -7,6 +7,22 @@ const {
   deleteProduct,
 } = require("../controllers/products.controller");
 const upload = require("../middlewares/upload");
+const multer = require("multer");  
+
+const handleMulterError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "FILE_TOO_LARGE") {
+      return res
+        .status(400)
+        .json({ message: "حجم فایل بیشتر از 5 مگابایت است" });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  if (err) {
+    return res.status(400).json({ message: err.message });
+  }
+  next();
+};
 
 /**
  * @openapi
@@ -66,7 +82,7 @@ router.get("/products/:code", getProduct);
  *   post:
  *     tags: [Products]
  *     summary: Create new product
- *     description: ایجاد محصول جدید با قابلیت آپلود تصویر
+ *     description: ایجاد محصول جدید با قابلیت آپلود چند تصویر
  *     requestBody:
  *       required: true
  *       content:
@@ -77,7 +93,7 @@ router.get("/products/:code", getProduct);
  *               - name
  *               - price
  *               - code
- *               - image
+ *               - images
  *             properties:
  *               name:
  *                 type: string
@@ -107,30 +123,24 @@ router.get("/products/:code", getProduct);
  *                 type: string
  *                 description: دسته‌بندی محصول
  *                 example: "electronics"
- *               image:
- *                 type: string
- *                 format: binary
- *                 description: تصویر محصول (فایل)
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: تصاویر محصول (چند فایل)
  *     responses:
  *       201:
  *         description: محصول با موفقیت ایجاد شد
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "کالا با موفقیت ساخته شد"
- *                 product:
- *                   type: object
  *       400:
- *         description: خطا - کالایی با این شناسه قبلا ثبت شده است
- *       500:
- *         description: خطای سرور
+ *         description: خطا
  */
-router.post("/products", upload.single("image"), createProduct);
-
+router.post(
+  "/products",
+  upload.array("images", 10),
+  handleMulterError,
+  createProduct,
+);
 /**
  * @openapi
  * /products/{code}:

@@ -1,6 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require('path');
+const fs = require('fs');
 const connectDB = require("./src/config/db");
 const swaggerSpec = require('./swagger');
 const swaggerUi = require("swagger-ui-express");
@@ -9,9 +11,18 @@ const app = express();
 
 connectDB();
 
+
+
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// CORS
+ 
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -21,7 +32,6 @@ app.use(
 
 app.use(express.json());  
 app.use(express.urlencoded({ extended: true })); // 
-app.use('/uploads', express.static('uploads'));
 
 app.get("/", (req, res) => {
   res.send("API is running...");
