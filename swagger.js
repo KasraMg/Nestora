@@ -1,16 +1,38 @@
-require("dotenv").config();
-const swaggerAutogen = require("swagger-autogen")();
+ const swaggerJsdoc = require('swagger-jsdoc');
 
-const doc = {
-  info: {
-    title: "Shop API",
-    description: "API Documentation for Shop",
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: "Shop API",
+      description: "API Documentation for Shop",
+      version: "1.0.0",
+      contact: {
+        name: "پشتیبانی",
+        email: "support@shop.com"
+      }
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 5000}/api`,
+        description: "Development server",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [{
+      bearerAuth: [],
+    }],
   },
-  host: `localhost:${process.env.PORT || 5000}`,
-  schemes: ["http"],
+  apis: ['./src/routes/*.js'], 
 };
 
-const outputFile = "./swagger-output.json";
-const endpointsFiles = ["./index.js"];
-
-swaggerAutogen(outputFile, endpointsFiles, doc);
+const swaggerSpec = swaggerJsdoc(options);
+module.exports = swaggerSpec;

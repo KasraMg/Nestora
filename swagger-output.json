@@ -5,7 +5,7 @@
     "description": "API Documentation for Shop",
     "version": "1.0.0"
   },
-  "host": "localhost:1000",
+  "host": "localhost:11000",
   "basePath": "/",
   "schemes": [
     "http"
@@ -212,10 +212,6 @@
         }
       },
       "post": {
-        "tags": [
-          "Products"
-        ],
-        "summary": "Create new product",
         "description": "",
         "parameters": [
           {
@@ -237,9 +233,6 @@
                   "example": "any"
                 },
                 "off": {
-                  "example": "any"
-                },
-                "image": {
                   "example": "any"
                 },
                 "category": {

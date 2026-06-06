@@ -1,3 +1,37 @@
-# dependencies
-node_modules 
+# Dependencies
+node_modules
+
+# Environment
 .env
+.env.local
+.env.production
+
+# Uploads (مهم)
+uploads/
+uploads/*
+!.gitkeep
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+
+# Temp
+tmp/
+temp/
+*.tmp

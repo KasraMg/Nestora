@@ -1,4 +1,5 @@
 const Products = require("../models/products.model");
+const fs = require('fs');  
 
 exports.getProduct = async (req, res, next) => {
   try {
@@ -81,11 +82,7 @@ exports.getProducts = async (req, res, next) => {
 
       {
         $facet: {
-          products: [
-            { $sort: sortStage },
-            { $skip: skip },
-            { $limit: limit },
-          ],
+          products: [{ $sort: sortStage }, { $skip: skip }, { $limit: limit }],
 
           totalCount: [{ $count: "count" }],
         },
@@ -107,17 +104,23 @@ exports.getProducts = async (req, res, next) => {
   }
 };
 
-
 exports.createProduct = async (req, res, next) => {
-  const { name, price, priceWithoutOff, star, off, image, category, code } =
-    req.body;
-
+  const { name, price, priceWithoutOff, star, off, category, code } = req.body;
+  
+  const images = req.files ? req.files.map(file => {
+    return `/uploads/${file.filename}`;
+  }) : [];
+  
   try {
     let product = await Products.findOne({ code });
-    if (product)
-      return res
-        .status(400)
-        .json({ message: "کالایی با این شناسه قبلا ثبت شده است" });
+    if (product) {
+      if (req.files) {
+        req.files.forEach(file => {
+          fs.unlink(file.path, (err) => console.log(err));
+        });
+      }
+      return res.status(400).json({ message: "کالایی با این شناسه قبلا ثبت شده است" });
+    }
 
     product = new Products({
       name,
@@ -126,7 +129,7 @@ exports.createProduct = async (req, res, next) => {
       star,
       off,
       code,
-      image,
+      images,
       category,
     });
     await product.save();
@@ -140,12 +143,17 @@ exports.createProduct = async (req, res, next) => {
         star: product.star,
         off: product.off,
         code: product.code,
-        image: product.image,
+        images: product.images,
         category: product.category,
         id: product._id,
       },
     });
   } catch (error) {
+    if (req.files) {
+      req.files.forEach(file => {
+        fs.unlink(file.path, (err) => console.log(err));
+      });
+    }
     next(error);
   }
 };
