@@ -1,5 +1,7 @@
 const Products = require("../models/products.model");
-const fs = require('fs');  
+const Categories = require("../models/categories.model");
+
+const fs = require("fs");
 
 exports.getProduct = async (req, res, next) => {
   try {
@@ -106,20 +108,31 @@ exports.getProducts = async (req, res, next) => {
 
 exports.createProduct = async (req, res, next) => {
   const { name, price, priceWithoutOff, star, off, category, code } = req.body;
-  
-  const images = req.files ? req.files.map(file => {
-    return `/uploads/${file.filename}`;
-  }) : [];
-  
+
+  const images = req.files
+    ? req.files.map((file) => {
+        return `/uploads/${file.filename}`;
+      })
+    : [];
+
   try {
     let product = await Products.findOne({ code });
     if (product) {
       if (req.files) {
-        req.files.forEach(file => {
+        req.files.forEach((file) => {
           fs.unlink(file.path, (err) => console.log(err));
         });
       }
-      return res.status(400).json({ message: "کالایی با این شناسه قبلا ثبت شده است" });
+      return res
+        .status(400)
+        .json({ message: "کالایی با این شناسه قبلا ثبت شده است" });
+    }
+    let isCategory = await Categories.findOne({ slug: category });
+
+    if (!isCategory) {
+      return res
+        .status(404)
+        .json({ message: "کتگوری ای با این شناسه یافت نشد" });
     }
 
     product = new Products({
@@ -150,7 +163,7 @@ exports.createProduct = async (req, res, next) => {
     });
   } catch (error) {
     if (req.files) {
-      req.files.forEach(file => {
+      req.files.forEach((file) => {
         fs.unlink(file.path, (err) => console.log(err));
       });
     }

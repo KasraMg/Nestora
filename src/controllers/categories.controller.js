@@ -61,7 +61,7 @@ exports.deleteCategory = async (req, res, next) => {
     const { slug } = req.params;
 
     if (!slug) {
-      return res.status(400).json({ message: "اسلاگ کتگوری ارسال نشده است" });
+      return res.status(400).json({ message: "شناسه کتگوری ارسال نشده است" });
     }
 
     const deletedCategory = await Categories.findOneAndDelete({
