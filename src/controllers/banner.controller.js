@@ -1,7 +1,8 @@
 const Banner = require("../models/banner.model");
 
 exports.createBanner = async (req, res, next) => {
-  const { position, url, image, isActive } = req.body;
+  const { position, url, isActive } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     let banner;
