@@ -1,5 +1,25 @@
 const express = require("express");
 const router = express.Router();
+
+const upload = require("../middlewares/upload");
+const multer = require("multer");  
+
+const handleMulterError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "FILE_TOO_LARGE") {
+      return res
+        .status(400)
+        .json({ message: "حجم فایل بیشتر از 5 مگابایت است" });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  if (err) {
+    return res.status(400).json({ message: err.message });
+  }
+  next();
+};
+
+
 const {
   createCategory,
   deleteCategory,
@@ -27,12 +47,13 @@ router.get("/categories", getCategories);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
  *               - name
  *               - slug
+ *               - image
  *             properties:
  *               name:
  *                 type: string
@@ -40,13 +61,23 @@ router.get("/categories", getCategories);
  *                 type: string
  *               description:
  *                 type: string
+ *               isActive:
+ *                 type: boolean
+ *               image:
+ *                 type: string
+ *                 format: binary
  *     responses:
  *       201:
  *         description: Category created successfully
  *       400:
  *         description: Bad request
  */
-router.post("/categories", createCategory);
+router.post(
+  "/categories",
+  upload.single("image"),   
+  handleMulterError,
+  createCategory
+);
 
 /**
  * @openapi
@@ -63,7 +94,7 @@ router.post("/categories", createCategory);
  *         description: Category slug
  *     responses:
  *       200:
- *         description: Category deleted successfully
+ *         description: Category deleted successfully 
  *       404:
  *         description: Category not found
  */

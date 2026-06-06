@@ -10,6 +10,10 @@ const categoriesSchema = new mongoose.Schema(
       type: String,
       required: [true, "اسلاگ کتگوری الزامی است"],
     },
+    description: {
+      type: String,
+      required: [true, "توضیحات کتگوری الزامی است"],
+    },
     image: {
       type: String,
       required: [true, "تصویر کتگوری الزامی است"],

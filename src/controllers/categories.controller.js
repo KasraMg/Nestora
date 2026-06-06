@@ -1,19 +1,27 @@
 const Categories = require("../models/categories.model");
 
 exports.createCategory = async (req, res, next) => {
-  const { name, slug, image, isActive } = req.body;
+  const { name, slug, description, isActive } = req.body;
+
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     let category = await Categories.findOne({ slug });
-    if (category)
+    if (category) {
+      if (req.file) {
+        fs.unlink(req.file.path, (err) => console.log(err));
+      }
       return res.status(400).json({ message: "این اسلاگ قبلا اضافه شده است" });
+    }
 
     category = new Categories({
       name,
       slug,
+      description,  
       image,
-      isActive,
+      isActive: isActive === "true" || isActive === true,  
     });
+
     await category.save();
 
     res.status(201).json({
@@ -22,12 +30,18 @@ exports.createCategory = async (req, res, next) => {
         name: category.name,
         slug: category.slug,
         image: category.image,
+        description: category.description,
         isActive: category.isActive,
-        id: category.id,
+        id: category._id,
       },
     });
-  } catch (error) {}
-  next(error);
+  } catch (error) {
+    // اگر خطا خورد و فایلی آپلود شده بود، پاکش کن
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => console.log(err));
+    }
+    next(error);
+  }
 };
 
 exports.getCategories = async (req, res, next) => {
