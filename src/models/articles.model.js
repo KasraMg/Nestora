@@ -11,7 +11,7 @@ const articlesSchema = new mongoose.Schema(
       required: [true, "اسلاگ کتگوری الزامی است"],
     },
     image: {
-      type: String,
+      type: String, 
       required: [true, "تصویر کتگوری الزامی است"],
     },
     short_description: {
@@ -21,11 +21,7 @@ const articlesSchema = new mongoose.Schema(
     body: {
       type: String,
       required: [true, "متن اصلی الزامی است"],
-    },
-    category: {
-      type: String,
-      required: [true, "نوع مقاله الزامی است"],
-    },
+    }, 
     isActive: {
       type: Boolean,
       default: true,

@@ -1,8 +1,10 @@
 const Articles = require("../models/articles.model");
 
 exports.createArticle = async (req, res, next) => {
-  const { name, slug, image, body, short_description, category, isActive } =
-    req.body;
+  const { name, slug, body, short_description, isActive } = req.body;
+
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
+
   try {
     let article = await Articles.findOne({ slug });
     if (article)
@@ -16,7 +18,6 @@ exports.createArticle = async (req, res, next) => {
       name,
       short_description,
       slug,
-      category,
       isActive,
     });
     await article.save();
@@ -30,7 +31,6 @@ exports.createArticle = async (req, res, next) => {
         short_description: article.short_description,
         slug: article.slug,
         id: article._id,
-        category: article.category,
         isActive: article.isActive,
       },
     });
@@ -63,14 +63,10 @@ exports.getArticles = async (req, res, next) => {
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const { name, category } = req.query;
+    const { name } = req.query;
 
     const filter = {};
-
-    if (category) {
-      filter.category = category;
-    }
-
+ 
     if (name) {
       filter.name = { $regex: name, $options: "i" };
     }
@@ -117,8 +113,9 @@ exports.deleteArticle = async (req, res, next) => {
 
 exports.editArticle = async (req, res, next) => {
   const { slug } = req.params;
-  const { name, newSlug, image, body, short_description, category, isActive } =
+  const { name, newSlug, body, short_description, isActive } =
     req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const article = await Articles.findOne({ slug });
@@ -134,7 +131,6 @@ exports.editArticle = async (req, res, next) => {
     if (body !== undefined) article.body = body;
     if (short_description !== undefined)
       article.short_description = short_description;
-    if (category !== undefined) article.category = category;
     if (isActive !== undefined) article.isActive = isActive;
 
     await article.save();
@@ -144,7 +140,7 @@ exports.editArticle = async (req, res, next) => {
       article,
     });
   } catch (error) {
-    next(error)
+    next(error);
     res.status(500).json({ message: "خطایی در ویرایش مقاله رخ داد" });
   }
 };

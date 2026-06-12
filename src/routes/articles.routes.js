@@ -1,39 +1,75 @@
 const express = require("express");
 const router = express.Router();
-const { createArticle, getArticle, deleteArticle, getArticles, editArticle } = require("../controllers/articles.controller");
+const {
+  createArticle,
+  getArticle,
+  deleteArticle,
+  getArticles,
+  editArticle,
+} = require("../controllers/articles.controller");
+
+const upload = require("../middlewares/upload");
+const multer = require("multer");
+
+const handleMulterError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "FILE_TOO_LARGE") {
+      return res
+        .status(400)
+        .json({ message: "حجم فایل بیشتر از 5 مگابایت است" });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  if (err) {
+    return res.status(400).json({ message: err.message });
+  }
+  next();
+};
 
 /**
  * @openapi
- * /article:
+ * /articles:
  *   post:
  *     tags: [Articles]
  *     summary: Create article
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
- *               - title
+ *               - name
  *               - slug
- *               - content
+ *               - short_description
+ *               - body
+ *               - category
  *             properties:
- *               title:
+ *               name:
  *                 type: string
  *               slug:
  *                 type: string
- *               content:
+ *               short_description:
  *                 type: string
- *               excerpt:
+ *               body:
  *                 type: string
- *               featuredImage:
+ *               category:
  *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *               isActive:
+ *                 type: boolean
  *     responses:
  *       201:
  *         description: Article created successfully
  */
-router.post("/article", createArticle);
+router.post(
+  "/articles",
+  upload.single("image"),
+  handleMulterError,
+  createArticle,
+);
 
 /**
  * @openapi
@@ -72,25 +108,35 @@ router.get("/articles/:slug", getArticle);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               title:
+ *               name:
  *                 type: string
- *               content:
+ *               short_description:
  *                 type: string
- *               excerpt:
+ *               body:
  *                 type: string
- *               featuredImage:
+ *               category:
  *                 type: string
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *               isActive:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Article updated successfully
  *       404:
  *         description: Article not found
  */
-router.put("/articles/:slug", editArticle);
+router.put(
+  "/articles/:slug",
+  upload.single("image"),
+  handleMulterError,
+  editArticle,
+);
 
 /**
  * @openapi
@@ -109,6 +155,16 @@ router.put("/articles/:slug", editArticle);
  *         schema:
  *           type: integer
  *         description: Items per page
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter by category
+ *       - in: query
+ *         name: isActive
+ *         schema:
+ *           type: boolean
+ *         description: Filter by active status
  *     responses:
  *       200:
  *         description: Articles retrieved successfully
