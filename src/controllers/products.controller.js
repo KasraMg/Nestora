@@ -2,7 +2,7 @@ const Products = require("../models/products.model");
 const Categories = require("../models/categories.model");
 
 const fs = require("fs");
-
+ 
 exports.getProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
@@ -107,7 +107,18 @@ exports.getProducts = async (req, res, next) => {
 };
 
 exports.createProduct = async (req, res, next) => {
-  const { name, price, priceWithoutOff, star, off, category, code } = req.body;
+  const {
+    name,
+    price,
+    priceWithoutOff,
+    star,
+    off,
+    category,
+    code,
+    description,
+    colors,
+    details,
+  } = req.body;
 
   const images = req.files
     ? req.files.map((file) => {
@@ -135,15 +146,20 @@ exports.createProduct = async (req, res, next) => {
         .json({ message: "کتگوری ای با این شناسه یافت نشد" });
     }
 
+   
+
     product = new Products({
       name,
       price,
       priceWithoutOff,
+      description,
       star,
       off,
       code,
       images,
       category,
+      colors: colors || [],
+      details: details || [],
     });
     await product.save();
 
@@ -159,6 +175,9 @@ exports.createProduct = async (req, res, next) => {
         images: product.images,
         category: product.category,
         id: product._id,
+        description: product.description,
+        colors: product.colors,
+        details: product.details,
       },
     });
   } catch (error) {

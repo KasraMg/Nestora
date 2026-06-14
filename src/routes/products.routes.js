@@ -7,7 +7,7 @@ const {
   deleteProduct,
 } = require("../controllers/products.controller");
 const upload = require("../middlewares/upload");
-const multer = require("multer");  
+const multer = require("multer");
 
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -21,6 +21,35 @@ const handleMulterError = (err, req, res, next) => {
   if (err) {
     return res.status(400).json({ message: err.message });
   }
+  next();
+};
+
+const parseComplexFormData = (req, res, next) => {
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return next();
+  }
+
+  const result = { ...req.body };
+
+  const arrayFields = ["colors", "details"];
+  for (const field of arrayFields) {
+    if (req.body[field]) {
+      if (typeof req.body[field] === "string") {
+        const trimmed = req.body[field].trim();
+        if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+          try {
+            result[field] = JSON.parse(trimmed);
+            console.log(`✅ ${field} parsed:`, result[field]);
+          } catch (e) {
+            console.log(`❌ ${field} parse error:`, e.message);
+          }
+        }
+      }
+    }
+  }
+
+  req.body = result;
+  console.log("📦 Final body:", JSON.stringify(req.body, null, 2));
   next();
 };
 
@@ -97,50 +126,54 @@ router.get("/products/:code", getProduct);
  *             properties:
  *               name:
  *                 type: string
- *                 description: نام محصول
- *                 example: "محصول نمونه"
+ *                 example: "لوستر مدرن"
  *               price:
  *                 type: number
- *                 description: قیمت محصول
- *                 example: 250000
+ *                 example: 3713000
  *               priceWithoutOff:
  *                 type: number
- *                 description: قیمت بدون تخفیف
- *                 example: 300000
+ *                 example: 10676000
  *               star:
  *                 type: number
- *                 description: امتیاز محصول (0-5)
  *                 example: 4.5
  *               off:
  *                 type: number
- *                 description: درصد تخفیف
- *                 example: 10
+ *                 example: 65
  *               code:
  *                 type: string
- *                 description: کد یکتای محصول
- *                 example: "PRD-001"
+ *                 example: "LSTR-6314-1H"
  *               category:
  *                 type: string
- *                 description: دسته‌بندی محصول
- *                 example: "electronics"
+ *                 example: "lamps"
+ *               description:
+ *                 type: string
  *               images:
  *                 type: array
  *                 items:
  *                   type: string
  *                   format: binary
- *                 description: تصاویر محصول (چند فایل)
+ *               colors:
+ *                 type: string
+ *                 description: "رنگ‌ها به صورت JSON string"
+ *                 example: '[{"name":"مشکی","code":"#000000"},{"name":"سفید","code":"#FFFFFF"}]'
+ *               details:
+ *                 type: string
+ *                 description: "مشخصات فنی به صورت JSON string"
+ *                 example: '[{"key":"وزن","value":"1050 گرم"},{"key":"ارتفاع","value":"100 سانتی متر"}]'
  *     responses:
  *       201:
- *         description: محصول با موفقیت ایجاد شد
+ *         description: موفق
  *       400:
  *         description: خطا
  */
 router.post(
   "/products",
   upload.array("images", 10),
+  parseComplexFormData,
   handleMulterError,
   createProduct,
 );
+
 /**
  * @openapi
  * /products/{code}:

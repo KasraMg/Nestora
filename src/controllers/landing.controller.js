@@ -5,10 +5,10 @@ const Articles = require("../models/articles.model");
 
 exports.getLandingData = async (req, res, next) => {
   try {
-    const products = await Products.find().sort({ createdAt: -1 }).limit(5);
-    const articles = await Articles.find();
+    const products = await Products.find().sort({ createdAt: -1 }).limit(10);
+    const articles = await Articles.find().limit(10);
     const categories = await Categories.find();
-    const banner = await Banner.find({ position: "Home" });
+    const banner = await Banner.find({ position: "home" });
 
     return res.status(200).json({
       products,
