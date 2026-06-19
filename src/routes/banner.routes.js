@@ -6,6 +6,25 @@ const {
   deleteBanner,
 } = require("../controllers/banner.controller");
 
+const upload = require("../middlewares/upload");
+const multer = require("multer");  
+
+const handleMulterError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === "FILE_TOO_LARGE") {
+      return res
+        .status(400)
+        .json({ message: "حجم فایل بیشتر از 5 مگابایت است" });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  if (err) {
+    return res.status(400).json({ message: err.message });
+  }
+  next();
+};
+
+
 /**
  * @openapi
  * /banner:
@@ -21,12 +40,15 @@ const {
  *             required:
  *               - title
  *               - image
+ *               - position
  *             properties:
  *               title:
  *                 type: string
  *               description:
  *                 type: string
- *               link:
+ *               position:
+ *                 type: string
+ *               url:
  *                 type: string
  *               image:
  *                 type: string
@@ -35,7 +57,13 @@ const {
  *       201:
  *         description: Banner created successfully
  */
-router.post("/banner", createBanner);
+router.post(
+  "/banner",
+  upload.single("image"),   
+  handleMulterError,
+  createBanner
+);
+
 
 /**
  * @openapi

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const categoriesSchema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -9,6 +9,10 @@ const categoriesSchema = new mongoose.Schema(
     slug: {
       type: String,
       required: [true, "اسلاگ کتگوری الزامی است"],
+    },
+    description: {
+      type: String,
+      required: [true, "توضیحات کتگوری الزامی است"],
     },
     image: {
       type: String,
@@ -22,4 +26,4 @@ const categoriesSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("Categories", categoriesSchema);
+module.exports = mongoose.model("Categories", categorySchema);

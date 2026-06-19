@@ -1,8 +1,10 @@
 const Articles = require("../models/articles.model");
 
 exports.createArticle = async (req, res, next) => {
-  const { name, slug, image, body, short_description, category, isActive } =
-    req.body;
+  const { name, slug, body, short_description, isActive } = req.body;
+
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
+
   try {
     let article = await Articles.findOne({ slug });
     if (article)
@@ -16,7 +18,6 @@ exports.createArticle = async (req, res, next) => {
       name,
       short_description,
       slug,
-      category,
       isActive,
     });
     await article.save();
@@ -30,7 +31,6 @@ exports.createArticle = async (req, res, next) => {
         short_description: article.short_description,
         slug: article.slug,
         id: article._id,
-        category: article.category,
         isActive: article.isActive,
       },
     });
@@ -59,31 +59,47 @@ exports.getArticle = async (req, res, next) => {
 
 exports.getArticles = async (req, res, next) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 10));
     const skip = (page - 1) * limit;
 
-    const { name, category } = req.query;
+    const { name, sort } = req.query;
 
     const filter = {};
-
-    if (category) {
-      filter.category = category;
-    }
-
     if (name) {
-      filter.name = { $regex: name, $options: "i" };
+      filter.name = { $regex: String(name).trim(), $options: "i" };
     }
 
-    let articles = await Articles.find(filter).skip(skip).limit(limit);
-    if (articles.length == 0)
-      return res.status(404).json({
-        message: "مقاله ای یافت نشد",
-      });
+    let sortStage = { createdAt: -1 };
+    if (sort) {
+      if (sort.startsWith("-")) {
+        const key = sort.substring(1);
+        sortStage = { [key]: -1 };
+      } else {
+        const key = sort;
+        sortStage = { [key]: 1 };
+      }
+    }
 
-    res.status(200).json({
+    const articles = await Articles.find(filter)
+      .sort(sortStage)
+      .skip(skip)
+      .limit(limit);
+
+    if (articles.length === 0) {
+      return res.status(200).json({
+        message: "مقاله‌ای یافت نشد",
+        articles: [],
+        page,
+        limit,
+      });
+    }
+
+    return res.status(200).json({
       message: "لیست مقالات با موفقیت یافت شد",
       articles,
+      page,
+      limit,
     });
   } catch (error) {
     next(error);
@@ -117,8 +133,8 @@ exports.deleteArticle = async (req, res, next) => {
 
 exports.editArticle = async (req, res, next) => {
   const { slug } = req.params;
-  const { name, newSlug, image, body, short_description, category, isActive } =
-    req.body;
+  const { name, newSlug, body, short_description, isActive } = req.body;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
     const article = await Articles.findOne({ slug });
@@ -134,7 +150,6 @@ exports.editArticle = async (req, res, next) => {
     if (body !== undefined) article.body = body;
     if (short_description !== undefined)
       article.short_description = short_description;
-    if (category !== undefined) article.category = category;
     if (isActive !== undefined) article.isActive = isActive;
 
     await article.save();
@@ -144,7 +159,7 @@ exports.editArticle = async (req, res, next) => {
       article,
     });
   } catch (error) {
-    next(error)
+    next(error);
     res.status(500).json({ message: "خطایی در ویرایش مقاله رخ داد" });
   }
 };
