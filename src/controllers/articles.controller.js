@@ -59,27 +59,47 @@ exports.getArticle = async (req, res, next) => {
 
 exports.getArticles = async (req, res, next) => {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 10));
     const skip = (page - 1) * limit;
 
-    const { name } = req.query;
+    const { name, sort } = req.query;
 
     const filter = {};
- 
     if (name) {
-      filter.name = { $regex: name, $options: "i" };
+      filter.name = { $regex: String(name).trim(), $options: "i" };
     }
 
-    let articles = await Articles.find(filter).skip(skip).limit(limit);
-    if (articles.length == 0)
-      return res.status(404).json({
-        message: "مقاله ای یافت نشد",
-      });
+    let sortStage = { createdAt: -1 };
+    if (sort) {
+      if (sort.startsWith("-")) {
+        const key = sort.substring(1);
+        sortStage = { [key]: -1 };
+      } else {
+        const key = sort;
+        sortStage = { [key]: 1 };
+      }
+    }
 
-    res.status(200).json({
+    const articles = await Articles.find(filter)
+      .sort(sortStage)
+      .skip(skip)
+      .limit(limit);
+
+    if (articles.length === 0) {
+      return res.status(200).json({
+        message: "مقاله‌ای یافت نشد",
+        articles: [],
+        page,
+        limit,
+      });
+    }
+
+    return res.status(200).json({
       message: "لیست مقالات با موفقیت یافت شد",
       articles,
+      page,
+      limit,
     });
   } catch (error) {
     next(error);
@@ -113,8 +133,7 @@ exports.deleteArticle = async (req, res, next) => {
 
 exports.editArticle = async (req, res, next) => {
   const { slug } = req.params;
-  const { name, newSlug, body, short_description, isActive } =
-    req.body;
+  const { name, newSlug, body, short_description, isActive } = req.body;
   const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
