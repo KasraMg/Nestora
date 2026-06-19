@@ -46,6 +46,7 @@ app.use("/api", require("./src/routes/landing.routes"));
 app.use("/api", require("./src/routes/cart.routes"));
 app.use("/api", require("./src/routes/wishlist.routes"));
 app.use("/api", require("./src/routes/feedback.routes"));
+app.use("/api", require("./src/routes/public.routes"));
 
 const errorHandler = require("./src/middlewares/errorHandler");
 app.use(errorHandler);

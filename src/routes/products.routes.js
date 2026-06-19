@@ -57,21 +57,87 @@ const parseComplexFormData = (req, res, next) => {
  * @openapi
  * /products:
  *   get:
- *     tags: [Products]
- *     summary: Get all products
- *     description: دریافت لیست تمام محصولات
+ *     tags:
+ *       - Products
+ *     summary: دریافت لیست محصولات با فیلترها و صفحه‌بندی
+ *     description: این endpoint لیست محصولات را با امکان فیلتر بر اساس دسته‌بندی، جستجو، محدوده قیمت، رنگ و مرتب‌سازی برمی‌گرداند.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description:  
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *           minimum: 0
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *           minimum: 0
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - price
+ *             - -price
+ *             - createdAt
+ *             - -createdAt
+ *             - star
+ *             - -star
+ *       
+ *       - in: query
+ *         name: color
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: موفقیت آمیز
+ *         description: موفقیت‌آمیز
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
+ *                 page:
+ *                   type: integer
+ *                   example: 1
+ *                 limit:
+ *                   type: integer
+ *                   example: 10
+ *                 total:
+ *                   type: integer
+ *                   example: 45
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 5
  *                 products:
  *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: پارامترهای نامعتبر
+ *       500:
+ *         description: خطای سرور
  */
 router.get("/products", getProducts);
 

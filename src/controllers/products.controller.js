@@ -2,7 +2,7 @@ const Products = require("../models/products.model");
 const Categories = require("../models/categories.model");
 
 const fs = require("fs");
- 
+
 exports.getProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
@@ -51,7 +51,7 @@ exports.getProducts = async (req, res, next) => {
 
     const skip = (page - 1) * limit;
 
-    const { category, search, minPrice, maxPrice, sort } = req.query;
+    const { category, search, minPrice, maxPrice, sort, color } = req.query;
 
     const match = {};
 
@@ -60,9 +60,11 @@ exports.getProducts = async (req, res, next) => {
     }
 
     if (search) {
-      match.title = { $regex: search.trim(), $options: "i" };
+      match.name = { $regex: search.trim(), $options: "i" };
     }
-
+    if (color) {
+      match["colors.name"] = color;
+    }
     if (minPrice || maxPrice) {
       match.price = {};
       if (minPrice) match.price.$gte = Number(minPrice);
@@ -145,8 +147,6 @@ exports.createProduct = async (req, res, next) => {
         .status(404)
         .json({ message: "کتگوری ای با این شناسه یافت نشد" });
     }
-
-   
 
     product = new Products({
       name,
