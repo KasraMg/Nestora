@@ -80,26 +80,20 @@ exports.getArticles = async (req, res, next) => {
         sortStage = { [key]: 1 };
       }
     }
+    const total = await Articles.countDocuments(filter);
 
     const articles = await Articles.find(filter)
       .sort(sortStage)
       .skip(skip)
       .limit(limit);
-
-    if (articles.length === 0) {
-      return res.status(200).json({
-        message: "مقاله‌ای یافت نشد",
-        articles: [],
-        page,
-        limit,
-      });
-    }
-
+ 
     return res.status(200).json({
       message: "لیست مقالات با موفقیت یافت شد",
       articles,
       page,
       limit,
+      totalPages: Math.ceil(total / limit),
+      total,
     });
   } catch (error) {
     next(error);

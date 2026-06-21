@@ -90,7 +90,7 @@ router.post(
  *       404:
  *         description: Article not found
  */
-router.get("/articles/:slug", getArticle);
+router.get("/article/:slug", getArticle);
 
 /**
  * @openapi
