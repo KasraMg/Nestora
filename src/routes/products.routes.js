@@ -39,7 +39,6 @@ const parseComplexFormData = (req, res, next) => {
         if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
           try {
             result[field] = JSON.parse(trimmed);
-            console.log(`✅ ${field} parsed:`, result[field]);
           } catch (e) {
             console.log(`❌ ${field} parse error:`, e.message);
           }
@@ -49,7 +48,6 @@ const parseComplexFormData = (req, res, next) => {
   }
 
   req.body = result;
-  console.log("📦 Final body:", JSON.stringify(req.body, null, 2));
   next();
 };
 
@@ -169,7 +167,7 @@ router.get("/products", getProducts);
  *       404:
  *         description: محصول یافت نشد
  */
-router.get("/products/:code", getProduct);
+router.get("/product/:code", getProduct);
 
 /**
  * @openapi

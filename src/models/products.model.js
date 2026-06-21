@@ -33,11 +33,19 @@ const productSchema = new mongoose.Schema(
     off: { type: Number, default: null },
     description: { type: String, default: null },
     images: { type: [{ type: String }], required: [true, "تصویر الزامی است"] },
-    category: { type: String, required: [true, "دسته بندی الزامی است"] },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Categories",
+      required: [true, "دسته بندی الزامی است"],
+    },
     code: {
-      type: String,
+      type: Number,
       required: [true, "کد کالا الزامی است "],
       unique: true,
+    },
+    slug: {
+      type: String,
+      required: [true, "شناسه کالا الزامی است "],
     },
     colors: {
       type: [colorSchema],
