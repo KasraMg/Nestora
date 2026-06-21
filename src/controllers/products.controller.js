@@ -7,7 +7,10 @@ exports.getProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
 
-    const product = await Products.findOne({ code: Number(code) });
+    const product = await Products.findOne({ code: Number(code) }).populate(
+      "category",
+      "name slug",
+    );
 
     if (!product) {
       return res.status(404).json({ message: "کالایی یافت نشد" });
@@ -120,6 +123,7 @@ exports.createProduct = async (req, res, next) => {
     description,
     colors,
     details,
+    slug,
   } = req.body;
 
   const images = req.files
@@ -140,7 +144,7 @@ exports.createProduct = async (req, res, next) => {
         .status(400)
         .json({ message: "کالایی با این شناسه قبلا ثبت شده است" });
     }
-    let isCategory = await Categories.findOne({ slug: category });
+    let isCategory = await Categories.findById(category);
 
     if (!isCategory) {
       return res
@@ -158,6 +162,7 @@ exports.createProduct = async (req, res, next) => {
       code,
       images,
       category,
+      slug,
       colors: colors || [],
       details: details || [],
     });
@@ -178,6 +183,7 @@ exports.createProduct = async (req, res, next) => {
         description: product.description,
         colors: product.colors,
         details: product.details,
+        slug: product.slug,
       },
     });
   } catch (error) {
