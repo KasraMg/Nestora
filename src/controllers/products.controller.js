@@ -1,19 +1,40 @@
 const Products = require("../models/products.model");
 const Categories = require("../models/categories.model");
+const User = require("../models/user.model");
 
 const fs = require("fs");
+const { tokenFormatter } = require("../utils/helpers");
 
 exports.getProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
-
-    const product = await Products.findOne({ code: Number(code) }).populate(
-      "category",
-      "name slug",
-    );
+    
+    const product = await Products.findOne({ code: Number(code) })
+      .populate("category", "name slug")
+      .lean();
 
     if (!product) {
       return res.status(404).json({ message: "کالایی یافت نشد" });
+    }
+
+    product.isFave = false;
+
+    const userId = tokenFormatter(req.headers.authorization);
+    
+    if (userId) {
+      const user = await User.findById(userId)
+        .select("wishlist")
+        .lean();
+      
+      if (user?.wishlist?.length > 0) {
+        const isFave = user.wishlist.some(
+          (item) => item.product?.toString() === product._id.toString()
+        );
+        
+        if (isFave) {
+          product.isFave = true;
+        }
+      }
     }
 
     return res.json(product);
