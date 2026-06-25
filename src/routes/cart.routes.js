@@ -17,12 +17,6 @@ const authMiddleware = require("../middlewares/auth.middleware");
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
  *       - in: path
  *         name: code
  *         required: true
@@ -74,13 +68,6 @@ router.delete("/removeFromCart/:productId", authMiddleware, removeFromCart);
  *     summary: Get user products from cart
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
  *     responses:
  *       200:
  *         description: Successfully retrieved cart products
@@ -98,12 +85,6 @@ router.get("/getProducts", authMiddleware, getUserCart);
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
  *     responses:
  *       200:
  *         description: Cart reset successfully

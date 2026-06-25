@@ -30,7 +30,7 @@ router.get("/getUserFeedbacks", authMiddleware, getUserFeedbacks);
  * /getProductFeedbacks/{code}:
  *   get:
  *     tags: [Feedback]
- *     summary: Get product feedbacks
+ *     summary: Get product feedbacks with pagination and statistics
  *     parameters:
  *       - in: path
  *         name: code
@@ -38,9 +38,105 @@ router.get("/getUserFeedbacks", authMiddleware, getUserFeedbacks);
  *         schema:
  *           type: string
  *         description: Product code
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
  *     responses:
  *       200:
  *         description: Successfully retrieved product feedbacks
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     product:
+ *                       type: object
+ *                       properties:
+ *                         code:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                     stats:
+ *                       type: object
+ *                       properties:
+ *                         averageRating:
+ *                           type: number
+ *                           format: float
+ *                         totalFeedbacks:
+ *                           type: integer
+ *                         ratingDistribution:
+ *                           type: object
+ *                           properties:
+ *                             1:
+ *                               type: integer
+ *                             2:
+ *                               type: integer
+ *                             3:
+ *                               type: integer
+ *                             4:
+ *                               type: integer
+ *                             5:
+ *                               type: integer
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         currentPage:
+ *                           type: integer
+ *                         totalPages:
+ *                           type: integer
+ *                         totalItems:
+ *                           type: integer
+ *                         itemsPerPage:
+ *                           type: integer
+ *                         hasNextPage:
+ *                           type: boolean
+ *                         hasPrevPage:
+ *                           type: boolean
+ *                     feedbacks:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           user:
+ *                             type: object
+ *                             properties:
+ *                               _id:
+ *                                 type: string
+ *                               name:
+ *                                 type: string
+ *                           rating:
+ *                             type: integer
+ *                             minimum: 1
+ *                             maximum: 5
+ *                           comment:
+ *                             type: string
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
  */
 router.get("/getProductFeedbacks/:code", getProductFeedbacks);
 
