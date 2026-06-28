@@ -76,13 +76,6 @@ router.post("/login", login);
  *     summary: Get current user by token
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
  *     responses:
  *       200:
  *         description: User data retrieved successfully
@@ -99,13 +92,7 @@ router.get("/getMe", authMiddleware, getMe);
  *     summary: Impersonate user (Admin only)
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
+ *     parameters: 
  *       - in: path
  *         name: userId
  *         required: true

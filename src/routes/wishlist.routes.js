@@ -10,14 +10,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
  *     tags: [Wishlist]
  *     summary: Get user products from wishlist
  *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
+ *       - bearerAuth: [] 
  *     responses:
  *       200:
  *         description: Successfully retrieved wishlist
@@ -34,13 +27,6 @@ router.get("/getUserWishlist", authMiddleware, getUserWishlist);
  *     summary: Add & remove products from user wishlist
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
  *       - in: path
  *         name: code
  *         required: true

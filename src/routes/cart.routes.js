@@ -4,42 +4,68 @@ const {
   addToCart,
   removeFromCart,
   getUserCart,
-  resetUserCart
+  resetUserCart,
+  updateCartItemQuantity,
 } = require("../controllers/cart.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 
 /**
  * @openapi
- * /addToCart/{code}:
+ * /addToCart:
  *   post:
  *     tags: [Cart]
  *     summary: Add product to cart
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
- *       - in: path
- *         name: code
- *         required: true
- *         schema:
- *           type: string
- *         description: Product code
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *               color:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Product added to cart successfully
  *       401:
  *         description: Unauthorized
  */
-router.post("/addToCart/:code", authMiddleware, addToCart);
+router.post("/addToCart", authMiddleware, addToCart);
+/**
+ * @openapi
+ * /updateCartItemQuantity:
+ *   post:
+ *     tags: [Cart]
+ *     summary: Add product to cart
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *               action:
+ *                 type: string
+ * 
+ *     responses:
+ *       200:
+ *         description: Product added to cart successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.put("/updateCartItemQuantity", authMiddleware, updateCartItemQuantity);
 
 /**
  * @openapi
- * /removeFromCart/{productId}:
+ * /removeFromCart/{itemId}:
  *   delete:
  *     tags: [Cart]
  *     summary: Remove product from cart
@@ -53,18 +79,18 @@ router.post("/addToCart/:code", authMiddleware, addToCart);
  *           type: string
  *         description: Bearer token
  *       - in: path
- *         name: productId
+ *         name: cartItemId
  *         required: true
  *         schema:
  *           type: string
- *         description: Product ID
+ *         description: item ID
  *     responses:
  *       200:
  *         description: Product removed from cart successfully
  *       401:
  *         description: Unauthorized
  */
-router.delete("/removeFromCart/:productId", authMiddleware, removeFromCart);
+router.delete("/removeFromCart/:id", authMiddleware, removeFromCart);
 
 /**
  * @openapi
@@ -74,13 +100,6 @@ router.delete("/removeFromCart/:productId", authMiddleware, removeFromCart);
  *     summary: Get user products from cart
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
  *     responses:
  *       200:
  *         description: Successfully retrieved cart products
@@ -98,12 +117,6 @@ router.get("/getProducts", authMiddleware, getUserCart);
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: header
- *         name: authorization
- *         required: true
- *         schema:
- *           type: string
- *         description: Bearer token
  *     responses:
  *       200:
  *         description: Cart reset successfully
