@@ -27,8 +27,8 @@ const userSchema = new mongoose.Schema(
           required: true,
           default: 1,
         },
-        price: {
-          type: Number,
+        color: {
+          type: String,
           required: true,
         },
       },
