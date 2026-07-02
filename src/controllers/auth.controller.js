@@ -104,12 +104,13 @@ exports.editUser = async (req, res, next) => {
   try {
     const user = req.user;
 
-    const { name, phone, email, birthDate } = req.body;
+    const { name, phone, email, birthDate, nationalCode } = req.body;
 
     if (name !== undefined) user.name = name;
     if (phone !== undefined) user.phone = phone;
     if (email !== undefined) user.email = email;
     if (birthDate !== undefined) user.birthDate = birthDate;
+    if (nationalCode !== undefined) user.nationalCode = nationalCode;
 
     await user.save();
 

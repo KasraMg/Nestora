@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     email: { type: String, default: null },
     birthDate: { type: String, default: null },
+    nationalCode: { type: String, default: null },
     wishlist: [
       {
         product: {
