@@ -1,20 +1,29 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/user.model");
+const AppError = require("../utils/AppError");
 
-module.exports = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "فرمت توکن وارد شده اشتباه است" });
-  }
-
+module.exports = async (req, res, next) => {
   try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next(new AppError("فرمت توکن وارد شده اشتباه است", 401));
+    }
+
     const token = authHeader.split(" ")[1];
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { id } = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded;
+    const user = await User.findById(id)
+
+    if (!user) {
+      return next(new AppError("کاربری یافت نشد", 404));
+    }
+
+    req.user = user;
+
     next();
   } catch (err) {
-    return res.status(401).json({ message: "توکن نامعتبر است" });
+    next(err);
   }
 };

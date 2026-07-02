@@ -1,4 +1,6 @@
 const Categories = require("../models/categories.model");
+const AppError = require("../utils/AppError");
+const fs = require('fs');
 
 exports.createCategory = async (req, res, next) => {
   const { name, slug, description, isActive } = req.body;
@@ -11,15 +13,13 @@ exports.createCategory = async (req, res, next) => {
       if (req.file) {
         fs.unlink(req.file.path, (err) => console.log(err));
       }
-      return res.status(400).json({ message: "این اسلاگ قبلا اضافه شده است" });
     }
-
     category = new Categories({
       name,
       slug,
-      description,  
+      description,
       image,
-      isActive: isActive === "true" || isActive === true,  
+      isActive: isActive === "true" || isActive === true,
     });
 
     await category.save();
@@ -35,11 +35,7 @@ exports.createCategory = async (req, res, next) => {
         id: category._id,
       },
     });
-  } catch (error) {
-    // اگر خطا خورد و فایلی آپلود شده بود، پاکش کن
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => console.log(err));
-    }
+  } catch (error) { 
     next(error);
   }
 };
@@ -47,9 +43,6 @@ exports.createCategory = async (req, res, next) => {
 exports.getCategories = async (req, res, next) => {
   try {
     const categories = await Categories.find();
-    if (!categories) {
-      return res.status(404).json({ message: "کتگوری" });
-    }
     res.status(200).json(categories);
   } catch (error) {
     next(error);
@@ -61,7 +54,7 @@ exports.deleteCategory = async (req, res, next) => {
     const { slug } = req.params;
 
     if (!slug) {
-      return res.status(400).json({ message: "شناسه کتگوری ارسال نشده است" });
+      return next(new AppError("شناسه کتگوری ارسال نشده است", 400));
     }
 
     const deletedCategory = await Categories.findOneAndDelete({
@@ -69,7 +62,7 @@ exports.deleteCategory = async (req, res, next) => {
     });
 
     if (!deletedCategory) {
-      return res.status(404).json({ message: "کتگوری یافت نشد" });
+      return next(new AppError("کتگوری با این شناسه یافت نشد ", 400));
     }
 
     return res.status(200).json({

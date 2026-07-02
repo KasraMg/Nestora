@@ -1,16 +1,13 @@
 const User = require("../models/user.model");
 const Products = require("../models/products.model");
+const AppError = require("../utils/AppError");
 
 exports.getUserWishlist = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id)
+    const user = await req.user
       .populate("wishlist.product")
-      .select("-password");
 
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    }
-    const wishlist = user.wishlist.map((item) => item.product); 
+    const wishlist = user.wishlist.map((item) => item.product);
     res.status(200).json(wishlist);
   } catch (error) {
     next(error);
@@ -20,18 +17,15 @@ exports.getUserWishlist = async (req, res, next) => {
 exports.toggleWishlist = async (req, res, next) => {
   const { code } = req.params;
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = req.user;
 
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    }
     if (!code) {
-      return res.status(404).json({ message: "کد محصول ارسال نشده است " });
+      return next(new AppError("شناسه ای یافت نشد", 404));
     }
 
     const product = await Products.findOne({ code });
     if (!product) {
-      return res.status(404).json({ message: "محصولی با این شناسه یافت  نشد" });
+      return next(new AppError("محصولی با این شناسه یافت  نشد", 404));
     }
     const alreadyExist = user.wishlist.find(
       (pr) => pr.product.toString() === product._id.toString(),

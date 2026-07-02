@@ -1,41 +1,35 @@
 const User = require("../models/user.model");
 const Products = require("../models/products.model");
+const AppError = require("../utils/AppError");
 
 exports.updateCartItemQuantity = async (req, res, next) => {
   try {
     const { id, action } = req.body;
 
-    const user = await User.findById(req.user.id).select("-password");
+    const user = req.user;
     const product = user.cart.find((item) => item._id == id);
 
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    }
     if (!id) {
-      return res.status(404).json({ message: "شناسه محصول وارد نشده است " });
+      return next(new AppError("شناسه محصول وارد نشده است ", 404));
     }
     if (!action) {
-      return res
-        .status(404)
-        .json({ message: " عملیات مورد نظر وارد نشده است " });
+      return next(new AppError(" عملیات مورد نظر وارد نشده است ", 400));
     }
     if (!product) {
-      return res
-        .status(404)
-        .json({ message: "محصولی با این شناسه در سبد خرید شما یافت نشد" });
+      return next(
+        new AppError("محصولی با این شناسه در سبد خرید شما یافت نشد", 404),
+      );
     }
 
     if (action == "plus") {
       product.quantity += 1;
     } else if (action == "minus") {
       if (product.quantity <= 1) {
-        return res
-          .status(400)
-          .json({ message: "تعداد محصول نمی‌تواند کمتر از ۱ باشد" });
+        return next(new AppError("تعداد محصول نمی‌تواند کمتر از ۱ باشد", 400));
       }
       product.quantity -= 1;
     } else {
-      return res.status(404).json({ message: "عملیات وارد شده معتبر نیست" });
+      return next(new AppError(" عملیات وارد شده معتبر نیست نیست ", 400));
     }
 
     await user.save();
@@ -52,26 +46,22 @@ exports.addToCart = async (req, res, next) => {
   try {
     const { code, color } = req.body;
 
-    const user = await User.findById(req.user.id).select("-password");
+    const user = req.user;
     const product = await Products.findOne({ code });
 
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    }
     if (!code) {
-      return res.status(404).json({ message: "کد محصول وارد نشده است " });
+      return next(new AppError("کد محصول وارد نشده است", 404));
     }
     if (!color) {
-      return res.status(404).json({ message: " رنگ محصول وارد نشده است " });
+      return next(new AppError("رنگ محصول وارد نشده است", 404));
     }
     if (!product) {
-      return res.status(404).json({ message: "محصولی با این کد یافت نشد" });
+      return next(new AppError("محصولی با این کد یافت نشد", 404));
     }
 
     const exitProduct = user.cart.find(
       (pr) => pr.product.toString() === product._id.toString(),
     );
-    console.log(color);
 
     if (exitProduct) {
       exitProduct.quantity += 1;
@@ -101,12 +91,10 @@ exports.removeFromCart = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findById(req.user.id).select("-password");
+    const user = req.user;
 
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    } else if (!id) {
-      return res.status(400).json({ message: "شناسه محصول ارسال نشده است" });
+    if (!id) {
+      return next(new AppError("شناسه محصول وارد نشده است ", 400));
     }
 
     const exitProduct = user.cart.find(
@@ -115,9 +103,9 @@ exports.removeFromCart = async (req, res, next) => {
     if (exitProduct) {
       user.cart = user.cart.filter((pr) => pr._id.toString() !== id.toString());
     } else {
-      return res
-        .status(400)
-        .json({ message: "محصولی با این شناسه در سبد شما یافت نشد" });
+      return next(
+        new AppError("محصولی با این شناسه در سبد خرید شما یافت نشد", 404),
+      );
     }
     await user.save();
 
@@ -131,13 +119,7 @@ exports.removeFromCart = async (req, res, next) => {
 };
 exports.getUserCart = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id)
-      .populate("cart.product")
-      .select("-password");
-
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    }
+    const user = req.user.populate("cart.product")
 
     let totalPrice = 0;
     let totalItems = 0;
@@ -171,12 +153,8 @@ exports.getUserCart = async (req, res, next) => {
 };
 exports.resetUserCart = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
-
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    }
-
+    const user = req.user;
+  
     user.cart = [];
     await user.save();
 

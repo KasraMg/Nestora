@@ -9,9 +9,10 @@ const articleSchema = new mongoose.Schema(
     slug: {
       type: String,
       required: [true, "اسلاگ کتگوری الزامی است"],
+      unique: true,
     },
     image: {
-      type: String, 
+      type: String,
       required: [true, "تصویر کتگوری الزامی است"],
     },
     short_description: {
@@ -21,7 +22,7 @@ const articleSchema = new mongoose.Schema(
     body: {
       type: String,
       required: [true, "متن اصلی الزامی است"],
-    }, 
+    },
     isActive: {
       type: Boolean,
       default: true,
