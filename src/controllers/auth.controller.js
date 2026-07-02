@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select("-password").populate("cart.product");
+    const user = await User.findById(req.user.id).select("-password").populate("cart.product wishlist.product");
 
     if (!user) {
       return res.status(404).json({ message: "کاربری یافت نشد" });

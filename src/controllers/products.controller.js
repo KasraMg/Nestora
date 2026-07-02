@@ -2,6 +2,7 @@ const Products = require("../models/products.model");
 const Categories = require("../models/categories.model");
 const Feedback = require("../models/feedback.model");
 const User = require("../models/user.model");
+const mongoose = require("mongoose");
 
 const fs = require("fs");
 const { tokenFormatter } = require("../utils/helpers");
@@ -108,7 +109,8 @@ exports.getProducts = async (req, res, next) => {
     const match = {};
 
     if (category) {
-      match.category = category;
+      const categoryDoc = await Categories.findOne({ slug: category });
+      match.category = categoryDoc._id;
     }
 
     if (search) {
