@@ -6,18 +6,19 @@ const mongoose = require("mongoose");
 
 const fs = require("fs");
 const { tokenFormatter } = require("../utils/helpers");
+const AppError = require("../utils/AppError");
 
 exports.getProduct = async (req, res, next) => {
   try {
     const { code } = req.params;
 
+    if (!code) {
+      return next(new AppError("کد محصول ارسال نشده است", 400));
+    }
+
     const product = await Products.findOne({ code: Number(code) })
       .populate("category", "name slug")
       .lean();
-
-    if (!product) {
-      return res.status(404).json({ message: "کالایی یافت نشد" });
-    }
 
     const feedbackStats = await Feedback.aggregate([
       { $match: { product: product._id } },
@@ -78,7 +79,7 @@ exports.deleteProduct = async (req, res, next) => {
     const { code } = req.params;
 
     if (!code) {
-      return res.status(400).json({ message: "کد محصول ارسال نشده است" });
+      return next(new AppError("کد محصول ارسال نشده است", 400));
     }
 
     const deletedProduct = await Products.findOneAndDelete({
@@ -86,7 +87,7 @@ exports.deleteProduct = async (req, res, next) => {
     });
 
     if (!deletedProduct) {
-      return res.status(404).json({ message: "کالایی یافت نشد" });
+      return next(new AppError("کالایی یافت نشد", 404));
     }
 
     return res.status(200).json({
@@ -204,16 +205,11 @@ exports.createProduct = async (req, res, next) => {
           fs.unlink(file.path, (err) => console.log(err));
         });
       }
-      return res
-        .status(400)
-        .json({ message: "کالایی با این شناسه قبلا ثبت شده است" });
     }
     let isCategory = await Categories.findById(category);
 
     if (!isCategory) {
-      return res
-        .status(404)
-        .json({ message: "کتگوری ای با این شناسه یافت نشد" });
+      return next(new AppError("دسته‌بندی با این شناسه یافت نشد", 404));
     }
 
     product = new Products({

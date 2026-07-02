@@ -4,6 +4,7 @@ const {
   register,
   login,
   getMe,
+  editUser,
   impersonateUser,
 } = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
@@ -83,6 +84,34 @@ router.post("/login", login);
  *         description: Unauthorized
  */
 router.get("/getMe", authMiddleware, getMe);
+/**
+ * @openapi
+ * /editUser:
+ *    put:
+ *     tags: [Auth]
+ *     summary: Edit user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               birhDate:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User data updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.put("/editUser", authMiddleware, editUser);
 
 /**
  * @openapi
@@ -92,7 +121,7 @@ router.get("/getMe", authMiddleware, getMe);
  *     summary: Impersonate user (Admin only)
  *     security:
  *       - bearerAuth: []
- *     parameters: 
+ *     parameters:
  *       - in: path
  *         name: userId
  *         required: true
@@ -107,6 +136,11 @@ router.get("/getMe", authMiddleware, getMe);
  *       403:
  *         description: Forbidden - Admin only
  */
-router.post("/impersonate/:userId", authMiddleware, adminMiddleware, impersonateUser);
+router.post(
+  "/impersonate/:userId",
+  authMiddleware,
+  adminMiddleware,
+  impersonateUser,
+);
 
 module.exports = router;

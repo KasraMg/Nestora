@@ -1,4 +1,5 @@
 const Banner = require("../models/banner.model");
+const AppError = require("../utils/AppError");
 
 exports.createBanner = async (req, res, next) => {
   const { position, url, isActive } = req.body;
@@ -26,7 +27,7 @@ exports.createBanner = async (req, res, next) => {
       },
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
@@ -45,18 +46,13 @@ exports.getBanners = async (req, res, next) => {
 exports.deleteBanner = async (req, res, next) => {
   const { id } = req.params;
   try {
-    if (!id)
-      return res.status(400).json({ message: "ایدی بنر ارسال نشده است" });
-
     const deletedBanner = await Banner.findByIdAndDelete(id);
 
-    if (!deletedBanner)
-      return res.status(404).json({ message: "بنری با این آیدی یافت نشد" });
-
-    return res.status(200).json({
-      message: "بنر با موفقیت حذف شد",
-      product: deletedBanner,
-    });
+    if (deletedBanner)
+      return res.status(200).json({
+        message: "بنر با موفقیت حذف شد",
+        product: deletedBanner,
+      });
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,5 @@
 const Articles = require("../models/articles.model");
+const AppError = require("../utils/AppError");
 
 exports.createArticle = async (req, res, next) => {
   const { name, slug, body, short_description, isActive } = req.body;
@@ -7,10 +8,6 @@ exports.createArticle = async (req, res, next) => {
 
   try {
     let article = await Articles.findOne({ slug });
-    if (article)
-      return res.status(400).json({
-        message: "قبلا مقاله ای با این اسلاگ ثبت شده است",
-      });
 
     article = new Articles({
       body,
@@ -44,9 +41,7 @@ exports.getArticle = async (req, res, next) => {
   try {
     let article = await Articles.findOne({ slug });
     if (!article)
-      return res.status(404).json({
-        message: "مقاله ای با این اسلاگ یافت نشد",
-      });
+      return next(new AppError("مقاله ای با این اسلاگ یافت نشد", 404));
 
     res.status(200).json({
       message: "مقاله با موفقیت یافت شد",
@@ -86,7 +81,7 @@ exports.getArticles = async (req, res, next) => {
       .sort(sortStage)
       .skip(skip)
       .limit(limit);
- 
+
     return res.status(200).json({
       message: "لیست مقالات با موفقیت یافت شد",
       articles,
@@ -105,7 +100,7 @@ exports.deleteArticle = async (req, res, next) => {
     const { slug } = req.params;
 
     if (!slug) {
-      return res.status(400).json({ message: "اسلاگ مقاله ارسال نشده است" });
+      return next(new AppError("اسلاگ مقاله ارسال نشده است", 400));
     }
 
     const deletedArticle = await Articles.findOneAndDelete({
@@ -113,7 +108,7 @@ exports.deleteArticle = async (req, res, next) => {
     });
 
     if (!deletedArticle) {
-      return res.status(404).json({ message: "مقاله ای یافت نشد" });
+      return next(new AppError("مقاله ای با این اسلاگ یافت نشد", 404));
     }
 
     return res.status(200).json({
@@ -133,9 +128,7 @@ exports.editArticle = async (req, res, next) => {
   try {
     const article = await Articles.findOne({ slug });
     if (!article) {
-      return res
-        .status(404)
-        .json({ message: "مقاله ای با این اسلاگ یافت نشد" });
+      return next(new AppError("مقاله ای با این اسلاگ یافت نشد", 404));
     }
 
     if (name !== undefined) article.name = name;
@@ -154,6 +147,5 @@ exports.editArticle = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-    res.status(500).json({ message: "خطایی در ویرایش مقاله رخ داد" });
   }
 };

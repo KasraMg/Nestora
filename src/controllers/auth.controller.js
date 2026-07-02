@@ -4,11 +4,7 @@ const bcrypt = require("bcryptjs");
 
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select("-password").populate("cart.product wishlist.product");
-
-    if (!user) {
-      return res.status(404).json({ message: "کاربری یافت نشد" });
-    }
+    const user = await req.user.populate(["cart.product", "wishlist.product"]);
     res.json({
       ...user.toObject(),
       impersonatedBy: req.user.impersonatedBy || null,
@@ -68,7 +64,7 @@ exports.register = async (req, res, next) => {
 
     res.status(201).json({
       token,
-      message: "با موفقیت ثبت نام شدید", 
+      message: "با موفقیت ثبت نام شدید",
       user: {
         id: user._id,
         name: user.name,
@@ -82,11 +78,7 @@ exports.register = async (req, res, next) => {
 };
 
 exports.impersonateUser = async (req, res, next) => {
-  const targetUser = await User.findById(req.params.userId);
-
-  if (!targetUser) {
-    return res.status(404).json({ message: "User not found" });
-  }
+  const targetUser = req.user;
 
   const token = jwt.sign(
     {
@@ -106,4 +98,26 @@ exports.impersonateUser = async (req, res, next) => {
       phone: targetUser.phone,
     },
   });
+};
+
+exports.editUser = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    const { name, phone, email, birthDate } = req.body;
+
+    if (name !== undefined) user.name = name;
+    if (phone !== undefined) user.phone = phone;
+    if (email !== undefined) user.email = email;
+    if (birthDate !== undefined) user.birthDate = birthDate;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "ویرایش با موفقیت انجام شد",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
