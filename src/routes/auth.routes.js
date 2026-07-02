@@ -6,6 +6,7 @@ const {
   getMe,
   editUser,
   impersonateUser,
+  changePassword,
 } = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const adminMiddleware = require("../middlewares/admin.middleware");
@@ -142,5 +143,33 @@ router.post(
   adminMiddleware,
   impersonateUser,
 );
+
+/**
+ * @openapi
+ * /editUser:
+ *    put:
+ *     tags: [Auth]
+ *     summary: change user password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *           required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User password updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.put("/changePassword", authMiddleware, changePassword);
 
 module.exports = router;

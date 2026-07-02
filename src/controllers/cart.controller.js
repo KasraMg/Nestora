@@ -119,7 +119,7 @@ exports.removeFromCart = async (req, res, next) => {
 };
 exports.getUserCart = async (req, res, next) => {
   try {
-    const user = req.user.populate("cart.product").select("-password");
+    const user = req.user.populate("cart.product")
 
     let totalPrice = 0;
     let totalItems = 0;

@@ -6,7 +6,6 @@ exports.getUserWishlist = async (req, res, next) => {
   try {
     const user = await req.user
       .populate("wishlist.product")
-      .select("-password");
 
     const wishlist = user.wishlist.map((item) => item.product);
     res.status(200).json(wishlist);
