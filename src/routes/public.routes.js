@@ -1,5 +1,8 @@
 const express = require("express");
-const { getShopFilters } = require("../controllers/public.controller");
+const {
+  getShopFilters,
+  getLocations,
+} = require("../controllers/public.controller");
 const router = express.Router();
 /**
  * @openapi
@@ -10,10 +13,18 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Successfully retrieved filters
- *       401:
- *         description: Unauthorized
  */
 router.get("/shopFilters", getShopFilters);
-
+/**
+ * @openapi
+ * /locations:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get locations
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved locaations
+ */
+router.get("/locations", getLocations);
 
 module.exports = router;

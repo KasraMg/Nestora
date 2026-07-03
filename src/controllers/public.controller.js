@@ -1,5 +1,7 @@
 const Categories = require("../models/categories.model");
 const Products = require("../models/products.model");
+const Province = require("../models/province.model");
+const City = require("../models/city.model");
 
 exports.getShopFilters = async (req, res, next) => {
   try {
@@ -23,9 +25,28 @@ exports.getShopFilters = async (req, res, next) => {
       categories,
       colors,
       minPrice,
-      maxPrice
+      maxPrice,
     });
   } catch (error) {
     next(error);
   }
+};
+
+let cache = null;
+
+exports.getLocations = async (req, res) => {
+  if (cache) {
+    return res.json(cache);
+  }
+  const [provinces, cities] = await Promise.all([
+    Province.find({}, "provinceId provinceName").lean(),
+    City.find({}, "cityId cityName provinceId").lean(),
+  ]);
+
+  cache = { provinces, cities };
+
+  res.json({
+    provinces,
+    cities,
+  });
 };
