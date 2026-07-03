@@ -3,9 +3,13 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: [true, "نام کاربری الزامی است"] },
     phone: { type: Number, required: true, unique: true },
-    password: { type: String, required: true, select: false },
+    password: {
+      type: String,
+      required: [true, "پسورد الزامی است"],
+      select: false,
+    },
     email: { type: String, default: null },
     birthDate: { type: String, default: null },
     nationalCode: { type: String, default: null },
@@ -18,6 +22,46 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+    addresses: {
+      type: [
+        {
+          postalCode: {
+            type: String,
+            required: [true, "کد پستی الزامی است"],
+            match: [/^\d{10}$/, "کد پستی باید ۱۰ رقم باشد"],
+          },
+          address: {
+            type: String,
+            required: [true, "  آدرس الزامی است"],
+          },
+          city: {
+            cityId: {
+              type: String,
+              required: [true, "شناسه شهر الزامی است"],
+            },
+            cityName: {
+              type: String,
+              required: true,
+            },
+            provinceId: {
+              type: String,
+              required: true,
+            },
+          },
+          province: {
+            provinceId: {
+              type: String,
+              required: [true, "شناسه استان الزامی است"],
+            },
+            provinceName: {
+              type: String,
+              required: true,
+            },
+          },
+        },
+      ],
+      default: [],
+    },
     cart: [
       {
         product: {
