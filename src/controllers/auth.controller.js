@@ -1,19 +1,7 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const AppError = require("../utils/AppError");
-
-exports.getMe = async (req, res, next) => {
-  try {
-    const user = await req.user.populate(["cart.product", "wishlist.product"]);
-    res.json({
-      ...user.toObject(),
-      impersonatedBy: req.user.impersonatedBy || null,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+const AppError = require("../utils/AppError"); 
 
 exports.login = async (req, res, next) => {
   const { phone, password } = req.body;
@@ -99,51 +87,6 @@ exports.impersonateUser = async (req, res, next) => {
       phone: targetUser.phone,
     },
   });
-};
-
-exports.editUser = async (req, res, next) => {
-  try {
-    const user = req.user;
-
-    const { name, phone, email, birthDate, nationalCode } = req.body;
-
-    if (name !== undefined) user.name = name;
-    if (phone !== undefined) user.phone = phone;
-    if (email !== undefined) user.email = email;
-    if (birthDate !== undefined) user.birthDate = birthDate;
-    if (nationalCode !== undefined) user.nationalCode = nationalCode;
-
-    await user.save();
-
-    res.status(200).json({
-      message: "ویرایش با موفقیت انجام شد",
-      user,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-exports.editUser = async (req, res, next) => {
-  try {
-    const user = req.user;
-
-    const { name, phone, email, birthDate, nationalCode } = req.body;
-
-    if (name !== undefined) user.name = name;
-    if (phone !== undefined) user.phone = phone;
-    if (email !== undefined) user.email = email;
-    if (birthDate !== undefined) user.birthDate = birthDate;
-    if (nationalCode !== undefined) user.nationalCode = nationalCode;
-
-    await user.save();
-
-    res.status(200).json({
-      message: "ویرایش با موفقیت انجام شد",
-      user,
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
 exports.changePassword = async (req, res, next) => {

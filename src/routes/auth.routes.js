@@ -3,8 +3,6 @@ const router = express.Router();
 const {
   register,
   login,
-  getMe,
-  editUser,
   impersonateUser,
   changePassword,
 } = require("../controllers/auth.controller");
@@ -69,51 +67,7 @@ router.post("/register", register);
  *         description: Invalid credentials
  */
 router.post("/login", login);
-
-/**
- * @openapi
- * /getMe:
- *   get:
- *     tags: [Auth]
- *     summary: Get current user by token
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: User data retrieved successfully
- *       401:
- *         description: Unauthorized
- */
-router.get("/getMe", authMiddleware, getMe);
-/**
- * @openapi
- * /editUser:
- *    put:
- *     tags: [Auth]
- *     summary: Edit user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               birhDate:
- *                 type: string
- *               phone:
- *                 type: string
- *               name:
- *                 type: string
- *     responses:
- *       200:
- *         description: User data updated successfully
- *       401:
- *         description: Unauthorized
- */
-router.put("/editUser", authMiddleware, editUser);
-
+  
 /**
  * @openapi
  * /impersonate/{userId}:
