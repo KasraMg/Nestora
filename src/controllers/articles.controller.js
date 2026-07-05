@@ -3,7 +3,7 @@ const AppError = require("../utils/AppError");
 
 exports.createArticle = async (req, res, next) => {
   const { name, slug, body, short_description, isActive } = req.body;
-
+  const user = req.user;
   const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
@@ -16,6 +16,7 @@ exports.createArticle = async (req, res, next) => {
       short_description,
       slug,
       isActive,
+      user: user._id,
     });
     await article.save();
 
@@ -39,13 +40,15 @@ exports.createArticle = async (req, res, next) => {
 exports.getArticle = async (req, res, next) => {
   const { slug } = req.params;
   try {
-    let article = await Articles.findOne({ slug });
+    let article = await Articles.findOne({ slug }).populate("user");
     if (!article)
       return next(new AppError("مقاله ای با این اسلاگ یافت نشد", 404));
+    const articles = await Articles.find();
 
     res.status(200).json({
       message: "مقاله با موفقیت یافت شد",
       article,
+      articles: articles.slice(0, 10),
     });
   } catch (error) {
     next(error);

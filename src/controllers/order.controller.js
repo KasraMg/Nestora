@@ -42,7 +42,7 @@ exports.createOrder = async (req, res, next) => {
       }),
       user: user._id,
       information,
-      status: "sucessfull",
+      status: "successfull",
       trackingCode,
     });
 

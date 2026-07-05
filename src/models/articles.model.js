@@ -11,6 +11,11 @@ const articleSchema = new mongoose.Schema(
       required: [true, "اسلاگ کتگوری الزامی است"],
       unique: true,
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     image: {
       type: String,
       required: [true, "تصویر کتگوری الزامی است"],
