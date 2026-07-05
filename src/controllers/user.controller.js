@@ -1,11 +1,15 @@
 const User = require("../models/user.model");
+const Order = require("../models/order.model");
 
 exports.getMe = async (req, res, next) => {
   try {
     const user = await req.user.populate(["cart.product", "wishlist.product"]);
+    const orders = await Order.find({ user: user._id }).populate("products.product");
+    const userObj = user.toObject();
+
+    userObj.orders = orders;
     res.json({
-      ...user.toObject(),
-      impersonatedBy: req.user.impersonatedBy || null,
+      ...userObj,
     });
   } catch (error) {
     next(error);

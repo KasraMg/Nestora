@@ -10,6 +10,7 @@ const {
 
 const upload = require("../middlewares/upload");
 const multer = require("multer");
+const authMiddleware = require("../middlewares/auth.middleware");
 
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -66,6 +67,7 @@ const handleMulterError = (err, req, res, next) => {
  */
 router.post(
   "/articles",
+  authMiddleware,
   upload.single("image"),
   handleMulterError,
   createArticle,
@@ -90,7 +92,7 @@ router.post(
  *       404:
  *         description: Article not found
  */
-router.get("/article/:slug", getArticle);
+router.get("/articles/:slug", getArticle);
 
 /**
  * @openapi
@@ -133,6 +135,7 @@ router.get("/article/:slug", getArticle);
  */
 router.put(
   "/articles/:slug",
+  authMiddleware,
   upload.single("image"),
   handleMulterError,
   editArticle,
@@ -190,6 +193,6 @@ router.get("/articles", getArticles);
  *       404:
  *         description: Article not found
  */
-router.delete("/articles/:slug", deleteArticle);
+router.delete("/articles/:slug", authMiddleware, deleteArticle);
 
 module.exports = router;
