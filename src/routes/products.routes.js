@@ -6,6 +6,7 @@ const {
   getProduct,
   deleteProduct,
 } = require("../controllers/products.controller");
+const authMiddleware = require("../middlewares/auth.middleware");
 const upload = require("../middlewares/upload");
 const multer = require("multer");
 
@@ -81,7 +82,7 @@ const parseComplexFormData = (req, res, next) => {
  *         name: search
  *         schema:
  *           type: string
- *         description:  
+ *         description:
  *       - in: query
  *         name: minPrice
  *         schema:
@@ -103,7 +104,7 @@ const parseComplexFormData = (req, res, next) => {
  *             - -createdAt
  *             - star
  *             - -star
- *       
+ *
  *       - in: query
  *         name: color
  *         schema:
@@ -271,6 +272,6 @@ router.post(
  *       500:
  *         description: خطای سرور
  */
-router.delete("/products/:code", deleteProduct);
+router.delete("/products/:code", authMiddleware, deleteProduct);
 
 module.exports = router;
