@@ -10,7 +10,7 @@ const {
 
 /**
  * @openapi
- * /getMe:
+ * /me:
  *   get:
  *     tags: [User]
  *     summary: Get current user by token
@@ -22,11 +22,11 @@ const {
  *       401:
  *         description: Unauthorized
  */
-router.get("/getMe", authMiddleware, getMe);
+router.get("/me", authMiddleware, getMe);
 
 /**
  * @openapi
- * /editUser:
+ * /me:
  *    put:
  *     tags: [User]
  *     summary: Edit user
@@ -51,7 +51,7 @@ router.get("/getMe", authMiddleware, getMe);
  *       401:
  *         description: Unauthorized
  */
-router.put("/editUser", authMiddleware, editUser);
+router.put("/me", authMiddleware, editUser);
 
 /**
  * @openapi
