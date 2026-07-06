@@ -5,7 +5,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 /**
  * @openapi
- * /getUserWishlist:
+ * /wishlist:
  *   get:
  *     tags: [Wishlist]
  *     summary: Get user products from wishlist
@@ -17,11 +17,11 @@ const authMiddleware = require("../middlewares/auth.middleware");
  *       401:
  *         description: Unauthorized
  */
-router.get("/getUserWishlist", authMiddleware, getUserWishlist);
+router.get("/wishlist", authMiddleware, getUserWishlist);
 
 /**
  * @openapi
- * /toggleWishlist/{code}:
+ * /toggle/wishlist/{code}:
  *   post:
  *     tags: [Wishlist]
  *     summary: Add & remove products from user wishlist
@@ -39,6 +39,6 @@ router.get("/getUserWishlist", authMiddleware, getUserWishlist);
  *       401:
  *         description: Unauthorized
  */
-router.post("/toggleWishlist/:code", authMiddleware, toggleWishlist);
+router.post("/toggle/wishlist/:code", authMiddleware, toggleWishlist);
 
 module.exports = router;
