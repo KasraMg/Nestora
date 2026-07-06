@@ -35,7 +35,7 @@ const productSchema = new mongoose.Schema(
     images: { type: [{ type: String }], required: [true, "تصویر الزامی است"] },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Categories",
+      ref: "Category",
       required: [true, "دسته بندی الزامی است"],
     },
     code: {
