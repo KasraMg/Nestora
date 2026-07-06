@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const articleSchema = new mongoose.Schema(
+const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -11,22 +11,13 @@ const articleSchema = new mongoose.Schema(
       required: [true, "اسلاگ کتگوری الزامی است"],
       unique: true,
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    description: {
+      type: String,
+      required: [true, "توضیحات کتگوری الزامی است"],
     },
     image: {
       type: String,
       required: [true, "تصویر کتگوری الزامی است"],
-    },
-    short_description: {
-      type: String,
-      required: [true, "پیش نویس الزامی است"],
-    },
-    body: {
-      type: String,
-      required: [true, "متن اصلی الزامی است"],
     },
     isActive: {
       type: Boolean,
@@ -36,4 +27,4 @@ const articleSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("Articles", articleSchema);
+module.exports = mongoose.model("Category", categorySchema);

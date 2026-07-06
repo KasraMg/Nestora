@@ -1,30 +1,12 @@
-const Banner = require("../models/banner.model");
-const AppError = require("../utils/AppError");
+const bannerService = require("../services/banner.service");
 
 exports.createBanner = async (req, res, next) => {
-  const { position, url, isActive } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
-
   try {
-    let banner;
-    banner = new Banner({
-      position,
-      url,
-      image,
-      isActive,
-    });
-    await banner.save();
+    const banner = await bannerService.createBanner(req.body, req.file);
 
     res.status(201).json({
       message: "بنر با موفقیت ساخته شد",
-
-      banner: {
-        position: banner.position,
-        url: banner.url,
-        image: banner.image,
-        isActive: banner.isActive,
-        id: banner._id,
-      },
+      banner,
     });
   } catch (error) {
     next(error);
@@ -33,10 +15,11 @@ exports.createBanner = async (req, res, next) => {
 
 exports.getBanners = async (req, res, next) => {
   try {
-    const banners = await Banner.find();
-    res.status(201).json({
-      message: "لیست بنر ها با موفقیت دریافت شد",
-      banners: banners,
+    const banners = await bannerService.getBanners();
+
+    res.status(200).json({
+      message: "لیست بنرها با موفقیت دریافت شد",
+      banners,
     });
   } catch (error) {
     next(error);
@@ -44,15 +27,13 @@ exports.getBanners = async (req, res, next) => {
 };
 
 exports.deleteBanner = async (req, res, next) => {
-  const { id } = req.params;
   try {
-    const deletedBanner = await Banner.findByIdAndDelete(id);
+    const deletedBanner = await bannerService.deleteBanner(req.params.id);
 
-    if (deletedBanner)
-      return res.status(200).json({
-        message: "بنر با موفقیت حذف شد",
-        product: deletedBanner,
-      });
+    res.status(200).json({
+      message: "بنر با موفقیت حذف شد",
+      banner: deletedBanner,
+    });
   } catch (error) {
     next(error);
   }

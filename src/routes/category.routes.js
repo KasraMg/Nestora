@@ -24,7 +24,7 @@ const {
   createCategory,
   deleteCategory,
   getCategories,
-} = require("../controllers/categories.controller");
+} = require("../controllers/category.controller");
 
 /**
  * @openapi

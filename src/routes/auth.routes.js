@@ -3,7 +3,6 @@ const router = express.Router();
 const {
   register,
   login,
-  impersonateUser,
   changePassword,
 } = require("../controllers/auth.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
@@ -67,36 +66,6 @@ router.post("/register", register);
  *         description: Invalid credentials
  */
 router.post("/login", login);
-  
-/**
- * @openapi
- * /impersonate/{userId}:
- *   post:
- *     tags: [Auth]
- *     summary: Impersonate user (Admin only)
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID to impersonate
- *     responses:
- *       200:
- *         description: Impersonation successful
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin only
- */
-router.post(
-  "/impersonate/:userId",
-  authMiddleware,
-  adminMiddleware,
-  impersonateUser,
-);
 
 /**
  * @openapi

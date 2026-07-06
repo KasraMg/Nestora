@@ -11,7 +11,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 /**
  * @openapi
- * /addToCart:
+ * /cart:
  *   post:
  *     tags: [Cart]
  *     summary: Add product to cart
@@ -34,13 +34,13 @@ const authMiddleware = require("../middlewares/auth.middleware");
  *       401:
  *         description: Unauthorized
  */
-router.post("/addToCart", authMiddleware, addToCart);
+router.post("/cart", authMiddleware, addToCart);
 /**
  * @openapi
- * /updateCartItemQuantity:
- *   post:
+ * /cart:
+ *   put:
  *     tags: [Cart]
- *     summary: Add product to cart
+ *     summary: edit product  
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -57,15 +57,15 @@ router.post("/addToCart", authMiddleware, addToCart);
  * 
  *     responses:
  *       200:
- *         description: Product added to cart successfully
+ *         description: Product edited successfully
  *       401:
  *         description: Unauthorized
  */
-router.put("/updateCartItemQuantity", authMiddleware, updateCartItemQuantity);
+router.put("/cart", authMiddleware, updateCartItemQuantity);
 
 /**
  * @openapi
- * /removeFromCart/{itemId}:
+ * /cart/{itemId}:
  *   delete:
  *     tags: [Cart]
  *     summary: Remove product from cart
@@ -90,11 +90,11 @@ router.put("/updateCartItemQuantity", authMiddleware, updateCartItemQuantity);
  *       401:
  *         description: Unauthorized
  */
-router.delete("/removeFromCart/:id", authMiddleware, removeFromCart);
+router.delete("/cart/:id", authMiddleware, removeFromCart);
 
 /**
  * @openapi
- * /getProducts:
+ * /cart:
  *   get:
  *     tags: [Cart]
  *     summary: Get user products from cart
@@ -106,11 +106,11 @@ router.delete("/removeFromCart/:id", authMiddleware, removeFromCart);
  *       401:
  *         description: Unauthorized
  */
-router.get("/getProducts", authMiddleware, getUserCart);
+router.get("/cart", authMiddleware, getUserCart);
 
 /**
  * @openapi
- * /resetUserCart:
+ * /cart/rest:
  *   delete:
  *     tags: [Cart]
  *     summary: Reset user cart
@@ -123,6 +123,6 @@ router.get("/getProducts", authMiddleware, getUserCart);
  *       401:
  *         description: Unauthorized
  */
-router.delete("/resetUserCart", authMiddleware, resetUserCart);
+router.delete("/cart", authMiddleware, resetUserCart);
 
 module.exports = router;
