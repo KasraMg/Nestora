@@ -1,49 +1,29 @@
-const Category = require("../models/category.model");
-const AppError = require("../utils/AppError");
-const fs = require('fs');
+const categoryService = require("../services/category.service");
 
 exports.createCategory = async (req, res, next) => {
-  const { name, slug, description, isActive } = req.body;
-
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
-
   try {
-    let category = await Category.findOne({ slug });
-    if (category) {
-      if (req.file) {
-        fs.unlink(req.file.path, (err) => console.log(err));
-      }
-    }
-    category = new Category({
-      name,
-      slug,
-      description,
-      image,
-      isActive: isActive === "true" || isActive === true,
-    });
-
-    await category.save();
+    const category = await categoryService.createCategory(
+      req.body,
+      req.file
+    );
 
     res.status(201).json({
       message: "کتگوری با موفقیت ساخته شد",
-      category: {
-        name: category.name,
-        slug: category.slug,
-        image: category.image,
-        description: category.description,
-        isActive: category.isActive,
-        id: category._id,
-      },
+      category,
     });
-  } catch (error) { 
+  } catch (error) {
     next(error);
   }
 };
 
 exports.getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find();
-    res.status(200).json(categories);
+    const categories = await categoryService.getCategories();
+
+    res.status(200).json({
+      message: "لیست کتگوری‌ها با موفقیت دریافت شد",
+      categories,
+    });
   } catch (error) {
     next(error);
   }
@@ -51,23 +31,11 @@ exports.getCategories = async (req, res, next) => {
 
 exports.deleteCategory = async (req, res, next) => {
   try {
-    const { slug } = req.params;
+    const category = await categoryService.deleteCategory(req.params.slug);
 
-    if (!slug) {
-      return next(new AppError("شناسه کتگوری ارسال نشده است", 400));
-    }
-
-    const deletedCategory = await Category.findOneAndDelete({
-      slug,
-    });
-
-    if (!deletedCategory) {
-      return next(new AppError("کتگوری با این شناسه یافت نشد ", 400));
-    }
-
-    return res.status(200).json({
+    res.status(200).json({
       message: "کتگوری با موفقیت حذف شد",
-      category: deletedCategory,
+      category,
     });
   } catch (error) {
     next(error);
