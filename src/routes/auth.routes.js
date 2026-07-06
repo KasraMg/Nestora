@@ -67,7 +67,7 @@ router.post("/register", register);
  *         description: Invalid credentials
  */
 router.post("/login", login);
-  
+
 /**
  * @openapi
  * /impersonate/{userId}:

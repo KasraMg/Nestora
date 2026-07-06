@@ -1,4 +1,4 @@
-const Categories = require("../models/categories.model");
+const Category = require("../models/category.model");
 const AppError = require("../utils/AppError");
 const fs = require('fs');
 
@@ -8,13 +8,13 @@ exports.createCategory = async (req, res, next) => {
   const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   try {
-    let category = await Categories.findOne({ slug });
+    let category = await Category.findOne({ slug });
     if (category) {
       if (req.file) {
         fs.unlink(req.file.path, (err) => console.log(err));
       }
     }
-    category = new Categories({
+    category = new Category({
       name,
       slug,
       description,
@@ -42,7 +42,7 @@ exports.createCategory = async (req, res, next) => {
 
 exports.getCategories = async (req, res, next) => {
   try {
-    const categories = await Categories.find();
+    const categories = await Category.find();
     res.status(200).json(categories);
   } catch (error) {
     next(error);
@@ -57,7 +57,7 @@ exports.deleteCategory = async (req, res, next) => {
       return next(new AppError("شناسه کتگوری ارسال نشده است", 400));
     }
 
-    const deletedCategory = await Categories.findOneAndDelete({
+    const deletedCategory = await Category.findOneAndDelete({
       slug,
     });
 

@@ -6,7 +6,7 @@ const {
   deleteArticle,
   getArticles,
   editArticle,
-} = require("../controllers/articles.controller");
+} = require("../controllers/article.controller");
 
 const upload = require("../middlewares/upload");
 const multer = require("multer");

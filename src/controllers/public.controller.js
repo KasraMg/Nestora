@@ -1,11 +1,11 @@
-const Categories = require("../models/categories.model");
+const Category = require("../models/category.model");
 const Products = require("../models/products.model");
 const Province = require("../models/province.model");
 const City = require("../models/city.model");
 
 exports.getShopFilters = async (req, res, next) => {
   try {
-    const categories = await Categories.find();
+    const categories = await Category.find();
     const colors = await Products.distinct("colors.name");
 
     const priceRange = await Products.aggregate([
