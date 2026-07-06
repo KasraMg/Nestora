@@ -11,7 +11,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /getUserFeedbacks:
+ * /user/feedbacks:
  *   get:
  *     tags: [Feedback]
  *     summary: Get user feedbacks
@@ -23,11 +23,11 @@ const router = express.Router();
  *       401:
  *         description: Unauthorized
  */
-router.get("/getUserFeedbacks", authMiddleware, getUserFeedbacks);
+router.get("/user/feedbacks", authMiddleware, getUserFeedbacks);
 
 /**
  * @openapi
- * /getProductFeedbacks/{code}:
+ * /product/feedbacks/{code}:
  *   get:
  *     tags: [Feedback]
  *     summary: Get product feedbacks with pagination and statistics
@@ -138,11 +138,11 @@ router.get("/getUserFeedbacks", authMiddleware, getUserFeedbacks);
  *       500:
  *         description: Internal server error
  */
-router.get("/getProductFeedbacks/:code", getProductFeedbacks);
+router.get("/product/feedbacks/:code", getProductFeedbacks);
 
 /**
  * @openapi
- * /createFeedback/{code}:
+ * /feedback/{code}:
  *   post:
  *     tags: [Feedback]
  *     summary: Create feedback for product
@@ -172,11 +172,11 @@ router.get("/getProductFeedbacks/:code", getProductFeedbacks);
  *       401:
  *         description: Unauthorized
  */
-router.post("/createFeedback/:code", authMiddleware, createFeedback);
+router.post("/feedback/:code", authMiddleware, createFeedback);
 
 /**
  * @openapi
- * /editFeedback/{id}:
+ * /feedback/{id}:
  *   put:
  *     tags: [Feedback]
  *     summary: Edit product feedback
@@ -208,11 +208,11 @@ router.post("/createFeedback/:code", authMiddleware, createFeedback);
  *       404:
  *         description: Feedback not found
  */
-router.put("/editFeedback/:id", authMiddleware, editFeedback);
+router.put("/feedback/:id", authMiddleware, editFeedback);
 
 /**
  * @openapi
- * /deleteFeedback/{id}:
+ * /feedback/{id}:
  *   delete:
  *     tags: [Feedback]
  *     summary: Delete feedback
@@ -233,6 +233,6 @@ router.put("/editFeedback/:id", authMiddleware, editFeedback);
  *       404:
  *         description: Feedback not found
  */
-router.delete("/deleteFeedback/:id", authMiddleware, deleteFeedback);
+router.delete("/feedback/:id", authMiddleware, deleteFeedback);
 
 module.exports = router;
