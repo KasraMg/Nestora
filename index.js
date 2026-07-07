@@ -1,57 +1,55 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const path = require('path');
-const fs = require('fs');
+const path = require("path");
+const fs = require("fs");
 const connectDB = require("./src/config/db");
-const swaggerSpec = require('./swagger');
+const swaggerSpec = require("./swagger");
 const swaggerUi = require("swagger-ui-express");
 
 const app = express();
 
 connectDB();
 
-
-
-const uploadDir = path.join(__dirname, 'uploads');
+const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
- 
 app.use(
   cors({
     origin: "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 
-app.use(express.json());  
-app.use(express.urlencoded({ extended: true })); // 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); //
 
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-app.use("/api", require("./src/routes/auth.routes"));
-app.use("/api", require("./src/routes/user.routes"));
-app.use("/api", require("./src/routes/products.routes"));
-app.use("/api", require("./src/routes/banner.routes"));
-app.use("/api", require("./src/routes/category.routes"));
-app.use("/api", require("./src/routes/article.routes"));
-app.use("/api", require("./src/routes/landing.routes"));
-app.use("/api", require("./src/routes/cart.routes"));
-app.use("/api", require("./src/routes/wishlist.routes"));
-app.use("/api", require("./src/routes/feedback.routes"));
-app.use("/api", require("./src/routes/public.routes"));
-app.use("/api", require("./src/routes/order.routes"));
+app.use("/api", require("./src/features/auth/auth.routes"));
+app.use("/api", require("./src/features/user/user.routes"));
+app.use("/api", require("./src/features/product/products.routes"));
+app.use("/api", require("./src/features/banner/banner.routes"));
+app.use("/api", require("./src/features/category/category.routes"));
+app.use("/api", require("./src/features/article/article.routes"));
+app.use("/api", require("./src/features/landing/landing.routes"));
+app.use("/api", require("./src/features/cart/cart.routes"));
+app.use("/api", require("./src/features/wishlist/wishlist.routes"));
+app.use("/api", require("./src/features/feedback/feedback.routes"));
+app.use("/api", require("./src/features/order/order.routes"));
+app.use("/api", require("./src/features/ticket/ticket.routes"));
+app.use("/api", require("./src/features/public/public.routes"));
 
-const errorHandler = require("./src/middlewares/errorHandler");
-app.use(errorHandler);
+const errorMiddleware = require("./src/middlewares/error.middleware");
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
 
