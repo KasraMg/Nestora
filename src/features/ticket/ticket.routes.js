@@ -14,6 +14,10 @@ const {
   addMessageSchema,
   ticketIdSchema,
 } = require("./ticket.validation");
+const {
+  ticketLimiter,
+  ticketMessageLimiter,
+} = require("../../middlewares/rate-limit.middleware");
 
 /**
  * @openapi
@@ -50,6 +54,7 @@ const {
 router.post(
   "/tickets",
   authMiddleware,
+  ticketLimiter,
   validate(createTicketSchema),
   createTicket,
 );
@@ -122,6 +127,7 @@ router.get("/tickets", authMiddleware, getUserTickets);
 router.post(
   "/tickets/:id/messages",
   authMiddleware,
+  ticketMessageLimiter,
   validate(addMessageSchema),
   addMessageToTicket,
 );

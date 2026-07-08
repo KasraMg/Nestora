@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const env = require("../config/env");
 
 const tokenFormatter = (authHeader) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -6,7 +7,7 @@ const tokenFormatter = (authHeader) => {
   }
   const token = authHeader.split(" ")[1];
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.verify(token, env.JWT_SECRET);
 
   return decoded.id;
 };
@@ -17,7 +18,7 @@ const generateToken = (user) => {
       id: user._id,
       role: user.role,
     },
-    process.env.JWT_SECRET,
+    env.JWT_SECRET,
     {
       expiresIn: "1d",
     },
