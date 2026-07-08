@@ -9,8 +9,15 @@ const {
 } = require("./article.controller");
 
 const uploadMiddleware = require("../../middlewares/upload.middleware");
-const multer = require("multer");
 const authMiddleware = require("../../middlewares/auth.middleware");
+const validate = require("../../middlewares/validate.middleware");
+
+const {
+  createArticleSchema,
+  updateArticleSchema,
+} = require("./article.validation");
+
+const multer = require("multer");
 
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -70,9 +77,9 @@ router.post(
   authMiddleware,
   uploadMiddleware.single("image"),
   handleMulterError,
+  validate(createArticleSchema),
   createArticle,
 );
-
 /**
  * @openapi
  * /articles/{slug}:
@@ -138,6 +145,7 @@ router.put(
   authMiddleware,
   uploadMiddleware.single("image"),
   handleMulterError,
+  validate(updateArticleSchema),
   editArticle,
 );
 

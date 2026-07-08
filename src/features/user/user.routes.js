@@ -8,6 +8,14 @@ const {
   deleteAddress,
 } = require("./user.controller");
 
+const validate = require("../../middlewares/validate.middleware");
+
+const {
+  editUserSchema,
+  createAddressSchema,
+  addressIdSchema,
+} = require("./user.validation");
+
 /**
  * @openapi
  * /me:
@@ -51,7 +59,7 @@ router.get("/me", authMiddleware, getMe);
  *       401:
  *         description: Unauthorized
  */
-router.put("/me", authMiddleware, editUser);
+router.put("/me", authMiddleware, validate(editUserSchema), editUser);
 
 /**
  * @openapi
@@ -104,7 +112,12 @@ router.put("/me", authMiddleware, editUser);
  *       401:
  *         description: Unauthorized
  */
-router.post("/address", authMiddleware, createAddress);
+router.post(
+  "/address",
+  authMiddleware,
+  validate(createAddressSchema),
+  createAddress,
+);
 
 /**
  * @openapi
@@ -125,5 +138,10 @@ router.post("/address", authMiddleware, createAddress);
  *       404:
  *         description: address not found
  */
-router.delete("/address/:id", authMiddleware, deleteAddress);
+router.delete(
+  "/address/:id",
+  authMiddleware,
+  validate(addressIdSchema),
+  deleteAddress,
+);
 module.exports = router;

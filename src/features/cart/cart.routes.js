@@ -7,8 +7,15 @@ const {
   resetUserCart,
   updateCartItemQuantity,
 } = require("./cart.controller");
-const authMiddleware = require("../../middlewares/auth.middleware");
 
+const authMiddleware = require("../../middlewares/auth.middleware");
+const validate = require("../../middlewares/validate.middleware");
+
+const {
+  addToCartSchema,
+  updateCartItemQuantitySchema,
+  removeCartItemSchema,
+} = require("./cart.validation");
 /**
  * @openapi
  * /cart:
@@ -34,13 +41,13 @@ const authMiddleware = require("../../middlewares/auth.middleware");
  *       401:
  *         description: Unauthorized
  */
-router.post("/cart", authMiddleware, addToCart);
+router.post("/cart", authMiddleware, validate(addToCartSchema), addToCart);
 /**
  * @openapi
  * /cart:
  *   put:
  *     tags: [Cart]
- *     summary: edit product  
+ *     summary: edit product
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -54,14 +61,19 @@ router.post("/cart", authMiddleware, addToCart);
  *                 type: string
  *               action:
  *                 type: string
- * 
+ *
  *     responses:
  *       200:
  *         description: Product edited successfully
  *       401:
  *         description: Unauthorized
  */
-router.put("/cart", authMiddleware, updateCartItemQuantity);
+router.put(
+  "/cart",
+  authMiddleware,
+  validate(updateCartItemQuantitySchema),
+  updateCartItemQuantity,
+);
 
 /**
  * @openapi
@@ -90,7 +102,12 @@ router.put("/cart", authMiddleware, updateCartItemQuantity);
  *       401:
  *         description: Unauthorized
  */
-router.delete("/cart/:id", authMiddleware, removeFromCart);
+router.delete(
+  "/cart/:id",
+  authMiddleware,
+  validate(removeCartItemSchema),
+  removeFromCart,
+);
 
 /**
  * @openapi

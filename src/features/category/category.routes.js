@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 const uploadMiddleware = require("../../middlewares/upload.middleware");
-const multer = require("multer");  
+const validate = require("../../middlewares/validate.middleware");
+const multer = require("multer");
 
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -19,6 +20,10 @@ const handleMulterError = (err, req, res, next) => {
   next();
 };
 
+const {
+  createCategorySchema,
+  deleteCategorySchema,
+} = require("./category.validation");
 
 const {
   createCategory,
@@ -74,9 +79,10 @@ router.get("/categories", getCategories);
  */
 router.post(
   "/categories",
-  uploadMiddleware.single("image"),   
+  uploadMiddleware.single("image"),
   handleMulterError,
-  createCategory
+  validate(createCategorySchema),
+  createCategory,
 );
 
 /**
@@ -94,10 +100,14 @@ router.post(
  *         description: Category slug
  *     responses:
  *       200:
- *         description: Category deleted successfully 
+ *         description: Category deleted successfully
  *       404:
  *         description: Category not found
  */
-router.delete("/categories/:slug", deleteCategory);
+router.delete(
+  "/categories/:slug",
+  validate(deleteCategorySchema),
+  deleteCategory,
+);
 
 module.exports = router;

@@ -7,6 +7,12 @@ const {
 } = require("./banner.controller");
 
 const uploadMiddleware = require("../../middlewares/upload.middleware");
+const validate = require("../../middlewares/validate.middleware");
+
+const {
+  createBannerSchema,
+} = require("./banner.validation");
+
 const multer = require("multer");
 
 const handleMulterError = (err, req, res, next) => {
@@ -60,6 +66,7 @@ router.post(
   "/banner",
   uploadMiddleware.single("image"),
   handleMulterError,
+  validate(createBannerSchema),
   createBanner,
 );
 

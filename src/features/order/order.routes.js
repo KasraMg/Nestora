@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../../middlewares/auth.middleware");
+const validate = require("../../middlewares/validate.middleware");
 const { createOrder, getOrder } = require("./order.controller");
+const { getOrderSchema, createOrderSchema } = require("./order.validation");
 
 /**
  * @openapi
@@ -80,7 +82,7 @@ const { createOrder, getOrder } = require("./order.controller");
  *                     example: "محمدی"
  *                     description: User last name
  *                   method:
- *                     type: string 
+ *                     type: string
  *                     example: "تیپاکس | پست | مراجعه حضوری"
  *                     description: delivery method
  *     responses:
@@ -109,7 +111,7 @@ const { createOrder, getOrder } = require("./order.controller");
  *       500:
  *         description: Internal server error
  */
-router.post("/order", authMiddleware, createOrder);
+router.post("/order", authMiddleware, validate(createOrderSchema), createOrder);
 
 /**
  * @openapi
@@ -130,5 +132,9 @@ router.post("/order", authMiddleware, createOrder);
  *       404:
  *         description: order not found
  */
-router.get("/order/:trackingCode", authMiddleware, getOrder);
+router.get(
+  "/order/:trackingCode",
+  authMiddleware, 
+  getOrder,
+);
 module.exports = router;

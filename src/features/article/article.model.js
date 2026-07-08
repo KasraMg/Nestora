@@ -4,11 +4,14 @@ const articleSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      trim: true,
       required: [true, "اسم کتگوری الزامی است"],
     },
     slug: {
       type: String,
       required: [true, "اسلاگ کتگوری الزامی است"],
+      trim: true,
+      lowercase: true,
       unique: true,
     },
     user: {

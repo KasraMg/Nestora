@@ -7,7 +7,15 @@ const {
   getProductFeedbacks,
 } = require("./feedback.controller");
 const authMiddleware = require("../../middlewares/auth.middleware");
+const validate = require("../../middlewares/validate.middleware");
 const router = express.Router();
+
+const {
+  createFeedbackSchema,
+  deleteFeedbackSchema,
+  editFeedbackSchema,
+  getProductFeedbacksSchema,
+} = require("./feedback.validation");
 
 /**
  * @openapi
@@ -138,7 +146,11 @@ router.get("/user/feedbacks", authMiddleware, getUserFeedbacks);
  *       500:
  *         description: Internal server error
  */
-router.get("/product/feedbacks/:code", getProductFeedbacks);
+router.get(
+  "/product/feedbacks/:code",
+  validate(getProductFeedbacksSchema),
+  getProductFeedbacks,
+);
 
 /**
  * @openapi
@@ -172,7 +184,12 @@ router.get("/product/feedbacks/:code", getProductFeedbacks);
  *       401:
  *         description: Unauthorized
  */
-router.post("/feedback/:code", authMiddleware, createFeedback);
+router.post(
+  "/feedback/:code",
+  authMiddleware,
+  validate(createFeedbackSchema),
+  createFeedback,
+);
 
 /**
  * @openapi
@@ -208,7 +225,12 @@ router.post("/feedback/:code", authMiddleware, createFeedback);
  *       404:
  *         description: Feedback not found
  */
-router.put("/feedback/:id", authMiddleware, editFeedback);
+router.put(
+  "/feedback/:id",
+  authMiddleware,
+  validate(editFeedbackSchema),
+  editFeedback,
+);
 
 /**
  * @openapi
@@ -233,6 +255,11 @@ router.put("/feedback/:id", authMiddleware, editFeedback);
  *       404:
  *         description: Feedback not found
  */
-router.delete("/feedback/:id", authMiddleware, deleteFeedback);
+router.delete(
+  "/feedback/:id",
+  authMiddleware,
+  validate(deleteFeedbackSchema),
+  deleteFeedback,
+);
 
 module.exports = router;

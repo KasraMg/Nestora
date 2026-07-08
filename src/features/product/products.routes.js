@@ -6,9 +6,13 @@ const {
   getProduct,
   deleteProduct,
 } = require("./products.controller");
+
 const authMiddleware = require("../../middlewares/auth.middleware");
+const validate = require("../../middlewares/validate.middleware");
 const uploadMiddleware = require("../../middlewares/upload.middleware");
+
 const multer = require("multer");
+const { createProductSchema } = require("./product.validation");
 
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -236,6 +240,7 @@ router.post(
   uploadMiddleware.array("images", 10),
   parseComplexFormData,
   handleMulterError,
+  validate(createProductSchema),
   createProduct,
 );
 
@@ -272,6 +277,11 @@ router.post(
  *       500:
  *         description: خطای سرور
  */
-router.delete("/products/:code", authMiddleware, deleteProduct);
+router.delete(
+  "/products/:code",
+  authMiddleware,
+  validate(createProductSchema),
+  deleteProduct,
+);
 
 module.exports = router;

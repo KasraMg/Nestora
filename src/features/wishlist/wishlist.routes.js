@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { getUserWishlist, toggleWishlist } = require("./wishlist.controller");
 const authMiddleware = require("../../middlewares/auth.middleware");
+const validate = require("../../middlewares/validate.middleware");
+
+const { toggleWishlistSchema } = require("./wishlist.validation");
 
 /**
  * @openapi
@@ -10,7 +13,7 @@ const authMiddleware = require("../../middlewares/auth.middleware");
  *     tags: [Wishlist]
  *     summary: Get user products from wishlist
  *     security:
- *       - bearerAuth: [] 
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Successfully retrieved wishlist
@@ -39,6 +42,11 @@ router.get("/wishlist", authMiddleware, getUserWishlist);
  *       401:
  *         description: Unauthorized
  */
-router.post("/toggle/wishlist/:code", authMiddleware, toggleWishlist);
+router.post(
+  "/toggle/wishlist/:code",
+  authMiddleware,
+  validate(toggleWishlistSchema),
+  toggleWishlist,
+);
 
 module.exports = router;

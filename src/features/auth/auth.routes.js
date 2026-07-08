@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const {
-  register,
-  login,
-  changePassword,
-} = require("./auth.controller");
+const { register, login, changePassword } = require("./auth.controller");
 const authMiddleware = require("../../middlewares/auth.middleware");
-const adminMiddleware = require("../../middlewares/admin.middleware");
+const validate = require("../../middlewares/validate.middleware");
+
+const {
+  registerSchema,
+  loginSchema,
+  changePasswordSchema,
+} = require("./auth.validation");
 
 /**
  * @openapi
@@ -37,7 +39,7 @@ const adminMiddleware = require("../../middlewares/admin.middleware");
  *       400:
  *         description: Bad request
  */
-router.post("/register", register);
+router.post("/register", validate(registerSchema), register);
 
 /**
  * @openapi
@@ -65,7 +67,7 @@ router.post("/register", register);
  *       401:
  *         description: Invalid credentials
  */
-router.post("/login", login);
+router.post("/login", validate(loginSchema), login);
 
 /**
  * @openapi
@@ -93,6 +95,11 @@ router.post("/login", login);
  *       401:
  *         description: Unauthorized
  */
-router.put("/changePassword", authMiddleware, changePassword);
+router.put(
+  "/changePassword",
+  authMiddleware,
+  validate(changePasswordSchema),
+  changePassword,
+);
 
 module.exports = router;

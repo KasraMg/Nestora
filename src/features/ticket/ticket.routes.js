@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const validate = require("../../middlewares/validate.middleware");
 const authMiddleware = require("../../middlewares/auth.middleware");
 const {
   createTicket,
@@ -9,6 +9,11 @@ const {
   toggleTicketStatus,
   getTicket,
 } = require("./ticket.controller");
+const {
+  createTicketSchema,
+  addMessageSchema,
+  ticketIdSchema,
+} = require("./ticket.validation");
 
 /**
  * @openapi
@@ -42,7 +47,12 @@ const {
  *       401:
  *         description: Unauthorized
  */
-router.post("/tickets", authMiddleware, createTicket);
+router.post(
+  "/tickets",
+  authMiddleware,
+  validate(createTicketSchema),
+  createTicket,
+);
 
 /**
  * @openapi
@@ -109,7 +119,12 @@ router.get("/tickets", authMiddleware, getUserTickets);
  *       404:
  *         description: Ticket not found
  */
-router.post("/tickets/:id/messages", authMiddleware, addMessageToTicket);
+router.post(
+  "/tickets/:id/messages",
+  authMiddleware,
+  validate(addMessageSchema),
+  addMessageToTicket,
+);
 
 /**
  * @openapi
@@ -136,7 +151,12 @@ router.post("/tickets/:id/messages", authMiddleware, addMessageToTicket);
  *       404:
  *         description: Ticket not found
  */
-router.put("/tickets/:id/status", authMiddleware, toggleTicketStatus);
+router.put(
+  "/tickets/:id/status",
+  authMiddleware,
+  validate(ticketIdSchema),
+  toggleTicketStatus,
+);
 
 /**
  * @openapi
@@ -157,6 +177,6 @@ router.put("/tickets/:id/status", authMiddleware, toggleTicketStatus);
  *       404:
  *         description: ticket not found
  */
-router.get("/ticket/:id", authMiddleware, getTicket);
+router.get("/ticket/:id", authMiddleware, validate(ticketIdSchema), getTicket);
 
 module.exports = router;
