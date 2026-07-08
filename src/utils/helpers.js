@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const env = require("./src/config/env");
+const env = require("../config/env");
 
 const tokenFormatter = (authHeader) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
