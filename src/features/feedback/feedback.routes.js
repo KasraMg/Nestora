@@ -16,6 +16,7 @@ const {
   editFeedbackSchema,
   getProductFeedbacksSchema,
 } = require("./feedback.validation");
+const { feedbackLimiter } = require("../../middlewares/rate-limit.middleware");
 
 /**
  * @openapi
@@ -187,6 +188,7 @@ router.get(
 router.post(
   "/feedback/:code",
   authMiddleware,
+  feedbackLimiter,
   validate(createFeedbackSchema),
   createFeedback,
 );

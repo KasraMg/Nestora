@@ -4,6 +4,7 @@ const authMiddleware = require("../../middlewares/auth.middleware");
 const validate = require("../../middlewares/validate.middleware");
 const { createOrder, getOrder } = require("./order.controller");
 const { getOrderSchema, createOrderSchema } = require("./order.validation");
+const { orderLimiter } = require("../../middlewares/rate-limit.middleware");
 
 /**
  * @openapi
@@ -111,7 +112,13 @@ const { getOrderSchema, createOrderSchema } = require("./order.validation");
  *       500:
  *         description: Internal server error
  */
-router.post("/order", authMiddleware, validate(createOrderSchema), createOrder);
+router.post(
+  "/order",
+  authMiddleware,
+  orderLimiter,
+  validate(createOrderSchema),
+  createOrder,
+);
 
 /**
  * @openapi
@@ -132,9 +139,5 @@ router.post("/order", authMiddleware, validate(createOrderSchema), createOrder);
  *       404:
  *         description: order not found
  */
-router.get(
-  "/order/:trackingCode",
-  authMiddleware, 
-  getOrder,
-);
+router.get("/order/:trackingCode", authMiddleware, getOrder);
 module.exports = router;

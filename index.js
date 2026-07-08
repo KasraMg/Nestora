@@ -30,6 +30,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); //
 
+const { defaultLimiter } = require("./src/middlewares/rate-limit.middleware");
+app.use(defaultLimiter);
+
 app.get("/", (req, res) => {
   res.send("API is running...");
 });

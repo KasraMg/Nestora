@@ -9,6 +9,11 @@ const {
   loginSchema,
   changePasswordSchema,
 } = require("./auth.validation");
+const {
+  registerLimiter,
+  loginLimiter,
+  changePasswordLimiter,
+} = require("../../middlewares/rate-limit.middleware");
 
 /**
  * @openapi
@@ -39,8 +44,7 @@ const {
  *       400:
  *         description: Bad request
  */
-router.post("/register", validate(registerSchema), register);
-
+router.post("/register", registerLimiter, validate(registerSchema), register);
 /**
  * @openapi
  * /login:
@@ -67,8 +71,7 @@ router.post("/register", validate(registerSchema), register);
  *       401:
  *         description: Invalid credentials
  */
-router.post("/login", validate(loginSchema), login);
-
+router.post("/login", loginLimiter, validate(loginSchema), login);
 /**
  * @openapi
  * /editUser:
@@ -98,6 +101,7 @@ router.post("/login", validate(loginSchema), login);
 router.put(
   "/changePassword",
   authMiddleware,
+  changePasswordLimiter,
   validate(changePasswordSchema),
   changePassword,
 );
