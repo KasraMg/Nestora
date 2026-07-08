@@ -1,6 +1,7 @@
 const helmet = require("helmet");
 const compression = require("compression");
 const cors = require("cors");
+const env = require("./src/config/env");
 
 exports.helmet = helmet({
   crossOriginResourcePolicy: false,
@@ -9,6 +10,6 @@ exports.helmet = helmet({
 exports.compression = compression();
 
 exports.cors = cors({
-  origin: process.env.FRONTEND_URL,
+  origin: env.FRONTEND_URL,
   credentials: true,
 });
