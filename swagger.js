@@ -1,16 +1,16 @@
- const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerJsdoc = require("swagger-jsdoc");
 
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: "Shop API",
-      description: "API Documentation for Shop",
+      title: "Homano API",
+      description: "API Documentation for Homano",
       version: "1.0.0",
-      contact: {
-        name: "پشتیبانی",
-        email: "support@shop.com"
-      }
+      // contact: {
+      //   name: "پشتیبانی",
+      //   email: "support@shop.com",
+      // },
     },
     servers: [
       {
@@ -21,17 +21,19 @@ const options = {
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
         },
       },
     },
-    security: [{
-      bearerAuth: [],
-    }],
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: ['./src/routes/*.js'], 
+  apis: ["./src/features/**/*.routes.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
