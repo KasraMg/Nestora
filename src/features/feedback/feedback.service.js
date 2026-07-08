@@ -1,6 +1,6 @@
 const Feedback = require("./feedback.model");
 const Products = require("../product/products.model");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 
 exports.createFeedback = async (user, code, data) => {
   const { comment, rating } = data;

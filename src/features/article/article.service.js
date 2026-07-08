@@ -1,5 +1,5 @@
 const Article = require("./article.model");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 
 exports.createArticle = async (user, data, file) => {
   const { name, slug, body, short_description, isActive } = data;

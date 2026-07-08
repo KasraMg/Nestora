@@ -7,10 +7,17 @@ const connectDB = require("./src/config/db");
 const swaggerSpec = require("./swagger");
 const swaggerUi = require("swagger-ui-express");
 const routes = require("./src/routes");
+const redisClient = require("./src/config/redis");
 
 const app = express();
 
-connectDB();
+(async () => {
+  await connectDB();
+
+  redisClient.connect().catch((err) => {
+    console.warn("⚠️ Redis unavailable:", err.message);
+  });
+})();
 
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {

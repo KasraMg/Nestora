@@ -1,7 +1,7 @@
 const Category = require("./category.model");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 const fs = require("fs");
-const deleteFile = require("../../utils/deleteFile");
+const deleteFile = require("../../utils/delete-file");
 
 exports.createCategory = async (data, file) => {
   const { name, slug, description, isActive } = data;

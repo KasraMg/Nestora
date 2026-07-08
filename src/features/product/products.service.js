@@ -3,8 +3,8 @@ const Categories = require("../category/category.model");
 const Feedback = require("../feedback/feedback.model");
 const User = require("../user/user.model");
 const { tokenFormatter } = require("../../utils/helpers");
-const AppError = require("../../utils/AppError");
-const deleteFile = require("../../utils/deleteFile");
+const AppError = require("../../utils/app-error");
+const deleteFile = require("../../utils/delete-file");
 
 exports.getProduct = async (code, authorization) => {
   if (!code) {
