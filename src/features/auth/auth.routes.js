@@ -74,8 +74,8 @@ router.post("/register", registerLimiter, validate(registerSchema), register);
 router.post("/login", loginLimiter, validate(loginSchema), login);
 /**
  * @openapi
- * /editUser:
- *    put:
+ * /changePassword:
+ *   put:
  *     tags: [Auth]
  *     summary: change user password
  *     requestBody:
@@ -84,7 +84,7 @@ router.post("/login", loginLimiter, validate(loginSchema), login);
  *         application/json:
  *           schema:
  *             type: object
- *           required:
+ *             required:
  *               - currentPassword
  *               - newPassword
  *             properties:

@@ -1,5 +1,5 @@
 const Banner = require("./banner.model");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 
 exports.createBanner = async (data, file) => {
   const { position, url, isActive } = data;

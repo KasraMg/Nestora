@@ -1,5 +1,5 @@
 const Order = require("../order/order.model");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 const Tickets = require("../ticket/ticket.model");
 
 exports.getMe = async (user) => {

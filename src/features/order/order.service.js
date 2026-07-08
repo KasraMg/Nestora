@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const Order = require("./order.model");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 
 exports.getOrder = async (trackingCode) => {
   if (!trackingCode) {

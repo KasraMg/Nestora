@@ -1,4 +1,4 @@
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 const Ticket = require("./ticket.model");
 
 exports.createTicket = async (user, data) => {

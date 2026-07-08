@@ -1,5 +1,5 @@
 const Products = require("../product/products.model");
-const AppError = require("../../utils/AppError");
+const AppError = require("../../utils/app-error");
 
 exports.getUserWishlist = async (user) => {
   await user.populate("wishlist.product");
