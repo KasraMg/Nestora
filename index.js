@@ -1,11 +1,11 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const connectDB = require("./src/config/db");
 const swaggerSpec = require("./swagger");
 const swaggerUi = require("swagger-ui-express");
+const routes = require("./src/routes");
 
 const app = express();
 
@@ -20,12 +20,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  }),
-);
+const security = require("./src/middlewares/security.middleware");
+
+app.use(security.helmet);
+app.use(security.compression);
+app.use(security.cors);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); //
@@ -37,19 +36,7 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-app.use("/api", require("./src/features/auth/auth.routes"));
-app.use("/api", require("./src/features/user/user.routes"));
-app.use("/api", require("./src/features/product/products.routes"));
-app.use("/api", require("./src/features/banner/banner.routes"));
-app.use("/api", require("./src/features/category/category.routes"));
-app.use("/api", require("./src/features/article/article.routes"));
-app.use("/api", require("./src/features/landing/landing.routes"));
-app.use("/api", require("./src/features/cart/cart.routes"));
-app.use("/api", require("./src/features/wishlist/wishlist.routes"));
-app.use("/api", require("./src/features/feedback/feedback.routes"));
-app.use("/api", require("./src/features/order/order.routes"));
-app.use("/api", require("./src/features/ticket/ticket.routes"));
-app.use("/api", require("./src/features/public/public.routes"));
+app.use("/api", routes);
 
 const errorMiddleware = require("./src/middlewares/error.middleware");
 app.use(errorMiddleware);
