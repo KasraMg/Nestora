@@ -59,3 +59,22 @@ exports.createProduct = async (req, res, next) => {
     next(error);
   }
 };
+
+
+exports.updateProduct = async (req, res, next) => {
+  try {
+    const product = await productService.updateProduct(
+      req.params.code,
+      req.body,
+      req.files
+    );
+
+    res.status(200).json({
+      message: "محصول با موفقیت ویرایش شد",
+      product,
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};

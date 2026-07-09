@@ -20,10 +20,19 @@ exports.slug = z
   .min(2)
   .max(100);
 
-exports.code = z.coerce
-  .number({
-    required_error: "کد الزامی است",
-    invalid_type_error: "کد باید عدد باشد",
-  })
-  .int("کد محصول معتبر نیست")
-  .min(1);
+exports.code = z.preprocess(
+  (value) => {
+    if (typeof value === "string" && !/^\d+$/.test(value)) {
+      return "INVALID_NUMBER";
+    }
+
+    return value;
+  },
+  z.coerce
+    .number({
+      required_error: "کد الزامی است",
+      invalid_type_error: "کد باید فقط عدد باشد",
+    })
+    .int("کد محصول معتبر نیست")
+    .min(1, "کد محصول باید بیشتر از صفر باشد")
+);

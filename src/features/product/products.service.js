@@ -6,7 +6,7 @@ const { tokenFormatter } = require("../../utils/helpers");
 const AppError = require("../../utils/app-error");
 const deleteFile = require("../../utils/delete-file");
 const cacheKeys = require("../../utils/constants/cache-keys");
-const { deleteCache } = require("../../services/cache");
+const { deleteCache, getCache, setCache } = require("../../services/cache");
 
 exports.getProduct = async (code, authorization) => {
   if (!code) {
@@ -250,6 +250,52 @@ exports.deleteProduct = async (user, code) => {
   await Promise.all([
     deleteCache(cacheKeys.LANDING),
     deleteCache(cacheKeys.SHOP_FILTERS),
+    deleteCache(`${cacheKeys.PRODUCT}-${code}`),
   ]);
   return deletedProduct;
+};
+
+exports.updateProduct = async (code, data, files) => {
+  const product = await Products.findOne({ code });
+
+  if (!product) {
+    throw new AppError("محصول پیدا نشد", 404);
+  }
+
+  if (data.category) {
+    const category = await Categories.findById(data.category);
+
+    if (!category) {
+      throw new AppError("دسته‌بندی یافت نشد", 404);
+    }
+  }
+
+  if (files && files.length > 0) {
+    if (product.images?.length) {
+      await Promise.all(
+        product.images.map((image) => {
+          const path = image.replace("/uploads/", "uploads/");
+          return deleteFile(path);
+        }),
+      );
+    }
+
+    product.images = files.map((file) => `/uploads/${file.filename}`);
+  }
+
+  Object.keys(data).forEach((key) => {
+    if (key !== "images" && data[key] !== undefined) {
+      product[key] = data[key];
+    }
+  });
+
+  await product.save();
+
+  await Promise.all([
+    deleteCache(cacheKeys.LANDING),
+    deleteCache(cacheKeys.SHOP_FILTERS),
+    deleteCache(`${cacheKeys.PRODUCT}-${code}`),
+  ]);
+
+  return product;
 };
