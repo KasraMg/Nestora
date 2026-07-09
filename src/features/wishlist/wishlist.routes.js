@@ -28,8 +28,7 @@ router.get("/wishlist", authMiddleware, getUserWishlist);
  *   post:
  *     tags: [Wishlist]
  *     summary: Add & remove products from user wishlist
- *     security:
- *       - bearerAuth: []
+ *     parameters:
  *       - in: path
  *         name: code
  *         required: true

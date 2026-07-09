@@ -1,8 +1,10 @@
 const { z } = require("zod");
 
-exports.phone = z
-  .number()
-  .refine((value) => /^\d{10}$/.test(String(value)), "شماره موبایل معتبر نیست");
+exports.phone = z.preprocess(
+  (value) => String(value),
+  z.string().regex(/^\d{10,11}$/, "شماره موبایل معتبر نیست"),
+);
+
 exports.objectId = z.string().regex(/^[a-f\d]{24}$/i, "شناسه معتبر نیست");
 
 exports.password = z

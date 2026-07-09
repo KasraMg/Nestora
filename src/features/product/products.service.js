@@ -5,85 +5,104 @@ const User = require("../user/user.model");
 const { tokenFormatter } = require("../../utils/helpers");
 const AppError = require("../../utils/app-error");
 const deleteFile = require("../../utils/delete-file");
+const cacheKeys = require("../../utils/constants/cache-keys");
+const { deleteCache } = require("../../services/cache");
 
 exports.getProduct = async (code, authorization) => {
   if (!code) {
     throw new AppError("کد محصول ارسال نشده است", 400);
   }
 
-  const product = await Products.findOne({ code: Number(code) })
-    .populate("category", "name slug")
-    .lean();
-  if (!product) {
-    throw new AppError("محصول یافت نشد", 404);
-  }
-  const feedbackStats = await Feedback.aggregate([
-    { $match: { product: product._id } },
-    // { $match: { product: product._id, show: true } },
-    {
-      $group: {
-        _id: null,
-        averageRating: { $avg: "$rating" },
-        totalComments: {
-          $sum: { $cond: [{ $ifNull: ["$comment", false] }, 1, 0] },
+  const cacheKey = `${cacheKeys.PRODUCT}-${code}`;
+
+  let product = await getCache(cacheKey);
+
+  if (product) {
+    console.log("🟢 Product served from Redis");
+  } else {
+    console.log("🟡 Product served from MongoDB");
+
+    product = await Products.findOne({ code: Number(code) })
+      .populate("category", "name slug")
+      .lean();
+
+    if (!product) {
+      throw new AppError("محصول یافت نشد", 404);
+    }
+
+    const feedbackStats = await Feedback.aggregate([
+      {
+        $match: {
+          product: product._id,
         },
-        totalRatings: { $sum: 1 },
       },
-    },
-  ]);
+      {
+        $group: {
+          _id: null,
+          averageRating: {
+            $avg: "$rating",
+          },
+          totalComments: {
+            $sum: {
+              $cond: [
+                {
+                  $ifNull: ["$comment", false],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalRatings: {
+            $sum: 1,
+          },
+        },
+      },
+    ]);
 
-  const stats = feedbackStats[0] || {
-    averageRating: 0,
-    totalComments: 0,
-    totalRatings: 0,
-  };
+    const stats = feedbackStats[0] || {
+      averageRating: 0,
+      totalComments: 0,
+      totalRatings: 0,
+    };
 
-  product.feedback = {
-    averageRating: Math.round(stats.averageRating * 10) / 10,
-    totalComments: stats.totalComments,
-    totalRatings: stats.totalRatings,
-  };
+    product.feedback = {
+      averageRating: Math.round(stats.averageRating * 10) / 10,
+      totalComments: stats.totalComments,
+      totalRatings: stats.totalRatings,
+    };
+
+    await setCache(cacheKey, product);
+  }
 
   product.isFave = false;
-  let userCart = [];
+  product.isInCart = false;
+
   const userId = tokenFormatter(authorization);
 
-  if (userId) {
-    const user = await User.findById(userId).select("wishlist cart").lean();
-    if (user?.cart?.length > 0) {
-      userCart = user.cart.map((item) => item.product?.toString());
-    }
-    if (user?.wishlist?.length > 0) {
-      const isFave = user.wishlist.some(
-        (item) => item.product?.toString() === product._id.toString(),
-      );
-
-      if (isFave) {
-        product.isFave = true;
-      }
-    }
+  if (!userId) {
+    return product;
   }
-  product.isInCart = userCart.includes(product._id.toString());
+
+  const user = await User.findById(userId).select("wishlist cart").lean();
+
+  if (!user) {
+    return product;
+  }
+
+  if (user.wishlist?.length) {
+    product.isFave = user.wishlist.some(
+      (item) => item.product?.toString() === product._id.toString(),
+    );
+  }
+
+  if (user.cart?.length) {
+    product.isInCart = user.cart.some(
+      (item) => item.product?.toString() === product._id.toString(),
+    );
+  }
 
   return product;
-};
-
-exports.deleteProduct = async (user, code) => {
-  if (user.role !== "admin") {
-    throw new AppError("کاربر شما دسترسی برای حذف محصول ندارد", 400);
-  }
-  if (!code) {
-    throw new AppError("کد محصول ارسال نشده است", 400);
-  }
-
-  const deletedProduct = await Products.findOneAndDelete({
-    code: Number(code),
-  });
-
-  if (!deletedProduct) {
-    throw new AppError("کالایی یافت نشد", 404);
-  }
-  return deletedProduct;
 };
 
 exports.getProducts = async (query, authorization) => {
@@ -203,5 +222,34 @@ exports.createProduct = async (data, files) => {
     colors: colors || [],
     details: details || [],
   });
-  return await product.save();
+
+  await product.save();
+
+  await Promise.all([
+    deleteCache(cacheKeys.LANDING),
+    deleteCache(cacheKeys.SHOP_FILTERS),
+  ]);
+  return product;
+};
+
+exports.deleteProduct = async (user, code) => {
+  if (user.role !== "admin") {
+    throw new AppError("کاربر شما دسترسی برای حذف محصول ندارد", 400);
+  }
+  if (!code) {
+    throw new AppError("کد محصول ارسال نشده است", 400);
+  }
+
+  const deletedProduct = await Products.findOneAndDelete({
+    code: Number(code),
+  });
+
+  if (!deletedProduct) {
+    throw new AppError("کالایی یافت نشد", 404);
+  }
+  await Promise.all([
+    deleteCache(cacheKeys.LANDING),
+    deleteCache(cacheKeys.SHOP_FILTERS),
+  ]);
+  return deletedProduct;
 };
