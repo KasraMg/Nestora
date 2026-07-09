@@ -1,7 +1,9 @@
 const Category = require("./category.model");
 const AppError = require("../../utils/app-error");
-const fs = require("fs");
 const deleteFile = require("../../utils/delete-file");
+const cacheKeys = require("../../utils/constants/cache-keys");
+const remember = require("../../services/remember");
+const { deleteCache } = require("../../services/cache");
 
 exports.createCategory = async (data, file) => {
   const { name, slug, description, isActive } = data;
@@ -28,11 +30,17 @@ exports.createCategory = async (data, file) => {
 
   await category.save();
 
+  await Promise.all([
+    deleteCache(cacheKeys.CATEGORY),
+    deleteCache(cacheKeys.LANDING),
+    deleteCache(cacheKeys.SHOP_FILTERS),
+  ]);
+
   return category;
 };
 
 exports.getCategories = async () => {
-  return await Category.find();
+  return remember(cacheKeys.CATEGORY, () => Category.find().lean());
 };
 
 exports.deleteCategory = async (slug) => {
@@ -47,6 +55,12 @@ exports.deleteCategory = async (slug) => {
   if (!deletedCategory) {
     throw new AppError("کتگوری با این اسلاگ یافت نشد", 404);
   }
+
+  await Promise.all([
+    deleteCache(cacheKeys.CATEGORY),
+    deleteCache(cacheKeys.LANDING),
+    deleteCache(cacheKeys.SHOP_FILTERS),
+  ]);
 
   return deletedCategory;
 };

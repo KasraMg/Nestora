@@ -5,6 +5,7 @@ const {
   createProduct,
   getProduct,
   deleteProduct,
+  updateProduct,
 } = require("./products.controller");
 
 const authMiddleware = require("../../middlewares/auth.middleware");
@@ -12,7 +13,7 @@ const validate = require("../../middlewares/validate.middleware");
 const uploadMiddleware = require("../../middlewares/upload.middleware");
 
 const multer = require("multer");
-const { createProductSchema } = require("./product.validation");
+const { createProductSchema, updateProductSchema } = require("./product.validation");
 
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
@@ -178,9 +179,13 @@ router.get("/product/:code", getProduct);
  * @openapi
  * /products:
  *   post:
- *     tags: [Products]
+ *     tags:
+ *       - Products
  *     summary: Create new product
  *     description: ایجاد محصول جدید با قابلیت آپلود چند تصویر
+ *     security:
+ *       - bearerAuth: []
+ *
  *     requestBody:
  *       required: true
  *       content:
@@ -189,51 +194,78 @@ router.get("/product/:code", getProduct);
  *             type: object
  *             required:
  *               - name
- *               - price
+ *               - slug
  *               - code
+ *               - category
+ *               - description
+ *               - price
+ *               - priceWithoutOff
  *               - images
+ *
  *             properties:
  *               name:
  *                 type: string
  *                 example: "لوستر مدرن"
+ *
+ *               slug:
+ *                 type: string
+ *                 example: "لوستر مدرن"
+ *
+ *               code:
+ *                 type: number
+ *                 example: "1"
+ *
+ *               category:
+ *                 type: number
+ *                 example: "121212"
+ *                 description:  ایدی کتگوری
+ *
+ *               description:
+ *                 type: string
+ *                 example: "لوستر مدرن مناسب دکوراسیون داخلی"
+ *
  *               price:
  *                 type: number
  *                 example: 3713000
+ *
  *               priceWithoutOff:
  *                 type: number
  *                 example: 10676000
- *               star:
- *                 type: number
- *                 example: 4.5
+ *
  *               off:
  *                 type: number
  *                 example: 65
- *               code:
- *                 type: string
- *                 example: "LSTR-6314-1H"
- *               category:
- *                 type: string
- *                 example: "lamps"
- *               description:
- *                 type: string
+ *
+ *               star:
+ *                 type: number
+ *                 example: 4.5
+ *
  *               images:
  *                 type: array
+ *                 description: تصاویر محصول (حداکثر ۱۰ عدد)
  *                 items:
  *                   type: string
  *                   format: binary
+ *
  *               colors:
  *                 type: string
- *                 description: "رنگ‌ها به صورت JSON string"
+ *                 description: رنگ‌ها به صورت JSON string
  *                 example: '[{"name":"مشکی","code":"#000000"},{"name":"سفید","code":"#FFFFFF"}]'
+ *
  *               details:
  *                 type: string
- *                 description: "مشخصات فنی به صورت JSON string"
+ *                 description: مشخصات فنی به صورت JSON string
  *                 example: '[{"key":"وزن","value":"1050 گرم"},{"key":"ارتفاع","value":"100 سانتی متر"}]'
+ *
  *     responses:
  *       201:
- *         description: موفق
+ *         description: محصول با موفقیت ایجاد شد
+ *
  *       400:
- *         description: خطا
+ *         description: خطای اعتبارسنجی اطلاعات
+ *
+ *       401:
+ *         description: عدم دسترسی
  */
 router.post(
   "/products",
@@ -258,7 +290,7 @@ router.post(
  *         schema:
  *           type: string
  *         description: کد محصول
- *         example: "PRD-001"
+ *         example: "155"
  *     responses:
  *       200:
  *         description: محصول با موفقیت حذف شد
@@ -277,11 +309,83 @@ router.post(
  *       500:
  *         description: خطای سرور
  */
-router.delete(
+router.delete("/products/:code", authMiddleware, deleteProduct);
+
+/**
+ * @openapi
+ * /products/{code}:
+ *   put:
+ *     tags:
+ *       - Products
+ *     summary: Update product by code
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: number
+ *         example: 66
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *
+ *             properties:
+ *               name:
+ *                 type: string
+ *
+ *               slug:
+ *                 type: string
+ *
+ *               price:
+ *                 type: number
+ *
+ *               priceWithoutOff:
+ *                 type: number
+ *
+ *               off:
+ *                 type: number
+ *
+ *               star:
+ *                 type: number
+ *
+ *               category:
+ *                 type: string
+ *
+ *               description:
+ *                 type: string
+ *
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *
+ *               colors:
+ *                 type: string
+ *                 example: '[{"name":"مشکی","code":"#000000"}]'
+ *
+ *               details:
+ *                 type: string
+ *                 example: '[{"key":"وزن","value":"2kg"}]'
+ *
+ *     responses:
+ *       200:
+ *         description: محصول ویرایش شد
+ */
+router.put(
   "/products/:code",
-  authMiddleware,
-  validate(createProductSchema),
-  deleteProduct,
+  uploadMiddleware.array("images", 10),
+  parseComplexFormData,
+  handleMulterError,
+  validate(updateProductSchema),
+  updateProduct,
 );
 
 module.exports = router;

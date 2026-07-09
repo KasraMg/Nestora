@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../../middlewares/auth.middleware");
 const validate = require("../../middlewares/validate.middleware");
-const { createOrder, getOrder } = require("./order.controller");
-const { getOrderSchema, createOrderSchema } = require("./order.validation");
+const { createOrder, getOrder, getOrders } = require("./order.controller");
+const { createOrderSchema } = require("./order.validation");
 const { orderLimiter } = require("../../middlewares/rate-limit.middleware");
 
 /**
@@ -140,4 +140,18 @@ router.post(
  *         description: order not found
  */
 router.get("/order/:trackingCode", authMiddleware, getOrder);
+
+/**
+ * @openapi
+ * /orders:
+ *   get:
+ *     tags: [Order]
+ *     summary: Get order by tracking code
+ *     responses:
+ *       200:
+ *         description: order retrieved successfully
+ *       404:
+ *         description: order not found
+ */
+router.get("/orders", authMiddleware, getOrders);
 module.exports = router;

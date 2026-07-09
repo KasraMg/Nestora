@@ -9,6 +9,15 @@ exports.getOrder = async (req, res, next) => {
     next(error);
   }
 };
+exports.getOrders = async (req, res, next) => {
+  try {
+    const order = await orderService.getOrders(req.user);
+
+    res.status(200).json(order);
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.createOrder = async (req, res, next) => {
   try {

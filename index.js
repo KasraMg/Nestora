@@ -8,15 +8,19 @@ const swaggerSpec = require("./swagger");
 const swaggerUi = require("swagger-ui-express");
 const routes = require("./src/routes");
 const redisClient = require("./src/config/redis");
+const gracefulShutdown = require("./src/utils/shutdown");
 
 const app = express();
 
 (async () => {
   await connectDB();
 
-  redisClient.connect().catch((err) => {
-    console.warn("⚠️ Redis unavailable:", err.message);
-  });
+  try {
+    await redisClient.connect();
+    console.log("Redis connected");
+  } catch (err) {
+    console.warn("Redis unavailable:", err.message);
+  }
 })();
 
 const uploadDir = path.join(__dirname, "uploads");
@@ -51,8 +55,24 @@ app.use(errorMiddleware);
 
 const PORT = env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📚 Swagger docs available at http://localhost:${PORT}/api-docs`);
   console.log(`🔗 API base: http://localhost:${PORT}/api`);
+});
+
+process.on("SIGINT", () => {
+  gracefulShutdown(server);
+});
+
+process.on("SIGTERM", () => {
+  gracefulShutdown(server);
+});
+
+process.on("unhandledRejection", () => {
+  gracefulShutdown(server);
+});
+
+process.on("uncaughtException", () => {
+  gracefulShutdown(server);
 });

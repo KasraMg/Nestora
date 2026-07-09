@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const env = require("../config/env");
+const { default: z } = require("zod");
 
 const tokenFormatter = (authHeader) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -25,4 +26,18 @@ const generateToken = (user) => {
   );
 };
 
-module.exports = { tokenFormatter, generateToken };
+
+const optionalString = (message, min = 1) =>
+  z.preprocess(
+    (value) => {
+      if (value === "") return undefined;
+      return value;
+    },
+    z
+      .string()
+      .trim()
+      .min(min, message)
+      .optional()
+  );
+  
+module.exports = { tokenFormatter, generateToken, optionalString };

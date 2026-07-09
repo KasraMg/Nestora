@@ -4,17 +4,17 @@ const Tickets = require("../ticket/ticket.model");
 
 exports.getMe = async (user) => {
   await user.populate(["cart.product", "wishlist.product"]);
-  const ticketCount = await Tickets.countDocuments({
+  const ticketsCount = await Tickets.countDocuments({
     user: user._id,
   });
-  const orders = await Order.find({
+  const ordersCount = await Order.countDocuments({
     user: user._id,
-  }).populate("products.product");
+  });
 
   const userObj = user.toObject();
 
-  userObj.orders = orders;
-  userObj.ticketsCount = ticketCount;
+  userObj.ordersCount = ordersCount;
+  userObj.ticketsCount = ticketsCount;
 
   return userObj;
 };

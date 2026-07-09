@@ -51,7 +51,6 @@ const handleMulterError = (err, req, res, next) => {
  *               - slug
  *               - short_description
  *               - body
- *               - category
  *             properties:
  *               name:
  *                 type: string
@@ -60,8 +59,6 @@ const handleMulterError = (err, req, res, next) => {
  *               short_description:
  *                 type: string
  *               body:
- *                 type: string
- *               category:
  *                 type: string
  *               image:
  *                 type: string
@@ -126,9 +123,7 @@ router.get("/articles/:slug", getArticle);
  *               short_description:
  *                 type: string
  *               body:
- *                 type: string
- *               category:
- *                 type: string
+ *                 type: string 
  *               image:
  *                 type: string
  *                 format: binary
@@ -165,12 +160,7 @@ router.put(
  *         name: limit
  *         schema:
  *           type: integer
- *         description: Items per page
- *       - in: query
- *         name: category
- *         schema:
- *           type: string
- *         description: Filter by category
+ *         description: Items per page 
  *       - in: query
  *         name: isActive
  *         schema:

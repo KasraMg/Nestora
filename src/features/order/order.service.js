@@ -18,6 +18,10 @@ exports.getOrder = async (trackingCode) => {
   return order;
 };
 
+exports.getOrders = async (user) => {
+  return await Order.find({ user: user._id }).populate("products.product");
+};
+
 exports.createOrder = async (user, information) => {
   await user.populate("cart.product");
 

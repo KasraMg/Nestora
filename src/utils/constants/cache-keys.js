@@ -1,6 +1,9 @@
 module.exports = {
   LANDING: "landing",
+  PRODUCT: "product",
   CATEGORY: "category",
   BANNERS: "banners",
-  PRODUCTS: "products",
+  ARTICLE: "article",
+  SHOP_FILTERS: "shop-filters",
+  LOCATIONS: "locations",
 };

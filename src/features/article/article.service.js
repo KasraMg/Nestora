@@ -1,5 +1,8 @@
 const Article = require("./article.model");
 const AppError = require("../../utils/app-error");
+const cacheKeys = require("../../utils/constants/cache-keys");
+const remember = require("../../services/remember");
+const { deleteCache } = require("../../services/cache");
 
 exports.createArticle = async (user, data, file) => {
   const { name, slug, body, short_description, isActive } = data;
@@ -11,7 +14,7 @@ exports.createArticle = async (user, data, file) => {
     throw new AppError("این اسلاگ قبلا ثبت شده است", 400);
   }
 
-  const article = new Articles({
+  const article = new Article({
     body,
     image,
     name,
@@ -20,14 +23,35 @@ exports.createArticle = async (user, data, file) => {
     isActive,
     user: user._id,
   });
-  return await article.save();
+
+  await article.save();
+
+  await Promise.all([
+    deleteCache(`${cacheKeys.ARTICLE}-${slug}`),
+    deleteCache(cacheKeys.LANDING),
+  ]);
+
+  return article;
 };
 
 exports.getArticle = async (slug) => {
-  let article = await Article.findOne({ slug }).populate("user");
-  if (!article) throw new AppError("مقاله ای با این اسلاگ یافت نشد", 404);
-  const articles = await Article.find().sort({ createdAt: -1 }).limit(10);
-  return { article, articles };
+  const cacheKey = `${cacheKeys.ARTICLE}-${slug}`;
+
+  return remember(cacheKey, async () => {
+    const [article, articles] = await Promise.all([
+      Article.findOne({ slug }).populate("user").lean(),
+      Article.find().sort({ createdAt: -1 }).limit(10).lean(),
+    ]);
+
+    if (!article) {
+      throw new AppError("مقاله ای با این اسلاگ یافت نشد", 404);
+    }
+
+    return {
+      article,
+      articles,
+    };
+  });
 };
 
 exports.getArticles = async (data) => {
@@ -57,7 +81,8 @@ exports.getArticles = async (data) => {
   const articles = await Article.find(filter)
     .sort(sortStage)
     .skip(skip)
-    .limit(limit);
+    .limit(limitNumber)
+    .lean();
 
   return { articles, page: pageNumber, limit: limitNumber, total };
 };
@@ -74,6 +99,12 @@ exports.deleteArticle = async (slug) => {
   if (!deletedArticle) {
     throw new AppError("مقاله ای با این اسلاگ یافت نشد", 404);
   }
+  await Promise.all([
+    deleteCache(`${cacheKeys.ARTICLE}-${slug}`),
+    deleteCache(cacheKeys.LANDING),
+  ]);
+  
+  return deletedArticle
 };
 
 exports.editArticle = async (slug, data, file) => {
@@ -102,5 +133,17 @@ exports.editArticle = async (slug, data, file) => {
     article.short_description = short_description;
   if (isActive !== undefined) article.isActive = isActive;
 
-  return await article.save();
+  await article.save();
+
+  const promises = [
+    deleteCache(`${cacheKeys.ARTICLE}-${slug}`),
+    deleteCache(cacheKeys.LANDING),
+  ];
+
+  if (newSlug && newSlug !== slug) {
+    promises.push(deleteCache(`${cacheKeys.ARTICLE}-${newSlug}`));
+  }
+
+  await Promise.all(promises);
+  return article;
 };
