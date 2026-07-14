@@ -19,7 +19,7 @@ const app = express();
     await redisClient.connect();
     console.log("Redis connected");
   } catch (err) {
-    console.warn("Redis unavailable:", err.message);
+    // console.warn("Redis unavailable:", err.message);
   }
 })();
 
