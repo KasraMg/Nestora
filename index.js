@@ -11,16 +11,16 @@ const redisClient = require("./src/config/redis");
 const gracefulShutdown = require("./src/utils/shutdown");
 
 const app = express();
-
+app.set("trust proxy", 1);
 (async () => {
   await connectDB();
 
-  try {
-    await redisClient.connect();
-    console.log("Redis connected");
-  } catch (err) {
-    // console.warn("Redis unavailable:", err.message);
-  }
+  // try {
+  //   await redisClient.connect();
+  //   console.log("Redis connected");
+  // } catch (err) {
+  //   // console.warn("Redis unavailable:", err.message);
+  // }
 })();
 
 const uploadDir = path.join(__dirname, "uploads");
