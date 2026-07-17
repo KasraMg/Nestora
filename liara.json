@@ -1,4 +1,13 @@
 {
   "platform": "node",
-  "port": 1000
+  "port": 1000,
+  "disks": [
+    {
+      "name": "uploads",
+      "mountTo": "/app/uploads"
+    }
+  ],
+  "build": {
+    "location": "germany"
+  }
 }
