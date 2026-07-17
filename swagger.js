@@ -15,7 +15,7 @@ const options = {
     },
     servers: [
       {
-        url: env.NODE_ENV == 'production' ? 'https://homano.liara.run/api': `http://localhost:${env.PORT || 5000}/api`,
+        url: env.NODE_ENV == 'production' ? env.SWAGGERURLREQUEST: `http://localhost:${env.PORT || 5000}/api`,
         description: "Development server",
       },
     ],

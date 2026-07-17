@@ -7,6 +7,7 @@ module.exports = cleanEnv(process.env, {
   MONGO_URI: str(),
   JWT_SECRET: str(),
   REDIS_URL: str(),
+  SWAGGERURLREQUEST: str(),
   NODE_ENV: str(),
   FRONTEND_URL: str({
     default: "http://localhost:5173",
