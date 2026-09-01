@@ -9,6 +9,8 @@ module.exports = cleanEnv(process.env, {
   REDIS_URL: str(),
   SWAGGERURLREQUEST: str(),
   NODE_ENV: str(),
+  FRONTEND_v2_URL: str(),
+  FRONTEND_v3_URL: str(),
   FRONTEND_URL: str({
     default: "http://localhost:5173",
   }),
