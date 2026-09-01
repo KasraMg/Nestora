@@ -1,6 +1,6 @@
 module.exports = (req, res, next) => {
   if (req.user.role !== "admin") {
-    return res.status(403).json({ message: "Access denied" });
+    return res.status(403).json({ message: "Access denied", status: 403 });
   }
   next();
 };

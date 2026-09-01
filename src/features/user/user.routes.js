@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../../middlewares/auth.middleware");
+const adminMiddleware = require("../../middlewares/admin.middleware");
 const {
   getMe,
   editUser,
   createAddress,
   deleteAddress,
+  getUsers,
+  changeUserRole,
 } = require("./user.controller");
 
 const validate = require("../../middlewares/validate.middleware");
@@ -31,6 +34,50 @@ const {
  *         description: Unauthorized
  */
 router.get("/me", authMiddleware, getMe);
+
+/**
+ * @openapi
+ * /users:
+ *   get:
+ *     tags: [User]
+ *     summary: Get all users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Users data retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.get("/users", authMiddleware, adminMiddleware, getUsers);
+
+/**
+ * @openapi
+ * /users/changeUserRole/{phone}:
+ *   put:
+ *     tags: [User]
+ *     summary: Change user role
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: phone
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User Phone
+ *     responses:
+ *       200:
+ *         description: User role updated successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.put(
+  "/users/changeUserRole/:phone",
+  authMiddleware,
+  adminMiddleware,
+  changeUserRole,
+);
 
 /**
  * @openapi

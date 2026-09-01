@@ -116,7 +116,11 @@ exports.getProducts = async (query, authorization) => {
 
   if (category) {
     const categoryDoc = await Categories.findOne({ slug: category });
-    match.category = categoryDoc._id;
+    if (categoryDoc) {
+      match.category = categoryDoc?._id;
+    } else {
+      return { page, limit, total: 0, products: [] };
+    }
   }
 
   if (search) {

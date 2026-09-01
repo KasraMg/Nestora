@@ -62,9 +62,7 @@ const parseComplexFormData = (req, res, next) => {
  * /products:
  *   get:
  *     tags:
- *       - Products
- *     summary: دریافت لیست محصولات با فیلترها و صفحه‌بندی
- *     description: این endpoint لیست محصولات را با امکان فیلتر بر اساس دسته‌بندی، جستجو، محدوده قیمت، رنگ و مرتب‌سازی برمی‌گرداند.
+ *       - Products 
  *     parameters:
  *       - in: query
  *         name: page

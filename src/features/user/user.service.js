@@ -1,6 +1,7 @@
 const Order = require("../order/order.model");
 const AppError = require("../../utils/app-error");
 const Tickets = require("../ticket/ticket.model");
+const Users = require("./user.model");
 
 exports.getMe = async (user) => {
   await user.populate(["cart.product", "wishlist.product"]);
@@ -17,6 +18,21 @@ exports.getMe = async (user) => {
   userObj.ticketsCount = ticketsCount;
 
   return userObj;
+};
+
+exports.getUsers = async () => {
+  return await Users.find();
+};
+
+exports.changeUserRole = async (phone) => {
+  const user = await Users.findOne({ phone });
+  if (user.role == "user") {
+    user.role = "admin";
+  } else user.role = "user";
+
+  await user.save();
+
+  return user.role;
 };
 
 exports.editUser = async (user, data) => {

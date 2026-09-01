@@ -11,6 +11,29 @@ exports.getMe = async (req, res, next) => {
     next(error);
   }
 };
+exports.getUsers = async (req, res, next) => {
+  try {
+    const user = await userService.getUsers();
+
+    res.json({
+      ...user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.changeUserRole = async (req, res, next) => {
+  try {
+    const phone = req.params.phone;
+    const newRole = await userService.changeUserRole(phone);
+
+    res.json({
+      message: `role updated to ${newRole} successfully`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.editUser = async (req, res, next) => {
   try {
