@@ -14,7 +14,7 @@ const createLimiter = (windowMs, max) =>
     },
   });
 
-exports.loginLimiter = createLimiter(15 * 60 * 1000, 5);
+exports.loginLimiter = createLimiter(15 * 60 * 1000, 10);
 
 exports.registerLimiter = createLimiter(60 * 60 * 1000, 3);
 
