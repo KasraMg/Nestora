@@ -13,5 +13,6 @@ router.use(require("../features/feedback/feedback.routes"));
 router.use(require("../features/order/order.routes"));
 router.use(require("../features/ticket/ticket.routes"));
 router.use(require("../features/public/public.routes"));
+router.use(require("../features/admin/admin.routes"));
 
 module.exports = router;

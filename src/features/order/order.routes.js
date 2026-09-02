@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../../middlewares/auth.middleware");
+const adminMiddleware = require("../../middlewares/admin.middleware");
 const validate = require("../../middlewares/validate.middleware");
 const { createOrder, getOrder, getOrders } = require("./order.controller");
 const { createOrderSchema } = require("./order.validation");
@@ -146,12 +147,12 @@ router.get("/order/:trackingCode", authMiddleware, getOrder);
  * /orders:
  *   get:
  *     tags: [Order]
- *     summary: Get order by tracking code
+ *     summary: Get orders
  *     responses:
  *       200:
- *         description: order retrieved successfully
+ *         description: orders retrieved successfully
  *       404:
  *         description: order not found
  */
-router.get("/orders", authMiddleware, getOrders);
+router.get("/orders", authMiddleware, adminMiddleware, getOrders);
 module.exports = router;
