@@ -1,9 +1,9 @@
 require("dotenv").config();
 
 const express = require("express");
-const path = require("path");
 const connectDB = require("./src/config/db");
 const redisClient = require("./src/config/redis");
+const swaggerSpec = require("./swagger");
 const routes = require("./src/routes");
 const swaggerUiDist = require("swagger-ui-dist");
 
@@ -26,13 +26,50 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Swagger UI
 const swaggerUiPath = swaggerUiDist.getAbsoluteFSPath();
 
 app.use("/api-docs", express.static(swaggerUiPath));
 
+// vercel config
 app.get("/api-docs", (req, res) => {
-  res.sendFile(path.join(swaggerUiPath, "index.html"));
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <title>Homano API Documentation</title>
+
+        <link
+          rel="stylesheet"
+          href="/api-docs/swagger-ui.css"
+        />
+      </head>
+
+      <body>
+        <div id="swagger-ui"></div>
+
+        <script src="/api-docs/swagger-ui-bundle.js"></script>
+        <script src="/api-docs/swagger-ui-standalone-preset.js"></script>
+
+        <script>
+          window.onload = () => {
+            window.ui = SwaggerUIBundle({
+              spec: ${JSON.stringify(swaggerSpec)},
+              dom_id: "#swagger-ui",
+              deepLinking: true,
+              presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+              ],
+              layout: "StandaloneLayout"
+            });
+          };
+        </script>
+      </body>
+    </html>
+  `);
 });
 
 const security = require("./src/middlewares/security.middleware");
@@ -69,19 +106,3 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 module.exports = app;
-
-// process.on("SIGINT", () => {
-//   gracefulShutdown(server);
-// });
-
-// process.on("SIGTERM", () => {
-//   gracefulShutdown(server);
-// });
-
-// process.on("unhandledRejection", () => {
-//   gracefulShutdown(server);
-// });
-
-// process.on("uncaughtException", () => {
-//   gracefulShutdown(server);
-// });
