@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const connectDB = require("./src/config/db");
+const redisClient = require("./src/config/redis");
 const swaggerSpec = require("./swagger");
 const swaggerUi = require("swagger-ui-express");
 const routes = require("./src/routes");
@@ -13,13 +14,24 @@ app.set("trust proxy", 1);
 app.use(async (req, res, next) => {
   try {
     await connectDB();
+
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+    }
+
     next();
   } catch (error) {
+    console.error("Service connection error:", error.message);
     next(error);
   }
 });
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger
+app.use(
+  "/api-docs",
+  swaggerUi.serveFiles(swaggerSpec),
+  swaggerUi.setup(swaggerSpec),
+);
 
 const security = require("./src/middlewares/security.middleware");
 
