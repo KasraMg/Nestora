@@ -1,25 +1,23 @@
 require("dotenv").config();
-const env = require("./src/config/env");
+
 const express = require("express");
 const connectDB = require("./src/config/db");
 const swaggerSpec = require("./swagger");
 const swaggerUi = require("swagger-ui-express");
 const routes = require("./src/routes");
-const redisClient = require("./src/config/redis");
-const gracefulShutdown = require("./src/utils/shutdown");
 
 const app = express();
-app.set("trust proxy", 1);
-(async () => {
-  await connectDB();
 
-  // try {
-  //   await redisClient.connect();
-  //   console.log("Redis connected");
-  // } catch (err) {
-  //   // console.warn("Redis unavailable:", err.message);
-  // }
-})();
+app.set("trust proxy", 1);
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -30,9 +28,10 @@ app.use(security.compression);
 app.use(security.cors);
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); //
+app.use(express.urlencoded({ extended: true }));
 
 const { defaultLimiter } = require("./src/middlewares/rate-limit.middleware");
+
 app.use(defaultLimiter);
 
 app.get("/", (req, res) => {
@@ -42,15 +41,10 @@ app.get("/", (req, res) => {
 app.use("/api", routes);
 
 const errorMiddleware = require("./src/middlewares/error.middleware");
+
 app.use(errorMiddleware);
 
-const PORT = env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📚 Swagger docs available at http://localhost:${PORT}/api-docs`);
-  console.log(`🔗 API base: http://localhost:${PORT}/api`);
-});
+module.exports = app;
 
 // process.on("SIGINT", () => {
 //   gracefulShutdown(server);
