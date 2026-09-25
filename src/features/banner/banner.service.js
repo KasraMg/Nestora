@@ -3,11 +3,22 @@ const AppError = require("../../utils/app-error");
 const cacheKeys = require("../../utils/constants/cache-keys");
 const remember = require("../../services/remember");
 const { deleteCache } = require("../../services/cache");
+const imagekit = require("../../config/imagekit");
 
 exports.createBanner = async (data, file) => {
   const { position, url, isActive } = data;
 
-  const image = file ? `/uploads/${file.filename}` : null;
+  let image = null;
+
+  if (file) {
+    const uploadedImage = await imagekit.upload({
+      file: file.buffer,
+      fileName: file.originalname,
+      folder: "/banners",
+    });
+
+    image = uploadedImage.url;
+  }
 
   const banner = new Banner({
     position,
@@ -22,6 +33,7 @@ exports.createBanner = async (data, file) => {
     deleteCache(cacheKeys.BANNERS),
     deleteCache(cacheKeys.LANDING),
   ]);
+
   return banner;
 };
 
@@ -35,6 +47,7 @@ exports.deleteBanner = async (id) => {
   if (!deletedBanner) {
     throw new AppError("بنری با این شناسه یافت نشد", 404);
   }
+
   await Promise.all([
     deleteCache(cacheKeys.BANNERS),
     deleteCache(cacheKeys.LANDING),

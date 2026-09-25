@@ -4,9 +4,9 @@ const Feedback = require("../feedback/feedback.model");
 const User = require("../user/user.model");
 const { tokenFormatter } = require("../../utils/helpers");
 const AppError = require("../../utils/app-error");
-const deleteFile = require("../../utils/delete-file");
 const cacheKeys = require("../../utils/constants/cache-keys");
 const { deleteCache, getCache, setCache } = require("../../services/cache");
+const imagekit = require("../../config/imagekit");
 
 exports.getProduct = async (code, authorization) => {
   if (!code) {
@@ -116,6 +116,7 @@ exports.getProducts = async (query, authorization) => {
 
   if (category) {
     const categoryDoc = await Categories.findOne({ slug: category });
+
     if (categoryDoc) {
       match.category = categoryDoc?._id;
     } else {
@@ -126,11 +127,14 @@ exports.getProducts = async (query, authorization) => {
   if (search) {
     match.name = { $regex: search.trim(), $options: "i" };
   }
+
   if (color) {
     match["colors.name"] = color;
   }
+
   if (minPrice || maxPrice) {
     match.price = {};
+
     if (minPrice) match.price.$gte = Number(minPrice);
     if (maxPrice) match.price.$lte = Number(maxPrice);
   }
@@ -163,6 +167,7 @@ exports.getProducts = async (query, authorization) => {
 
   if (userId) {
     const user = await User.findById(userId).select("cart").lean();
+
     if (user?.cart?.length > 0) {
       userCart = user.cart.map((item) => item.product?.toString());
     }
@@ -173,7 +178,12 @@ exports.getProducts = async (query, authorization) => {
     isInCart: userCart.includes(product._id.toString()),
   }));
 
-  return { page, limit, total, products: productsWithCartStatus };
+  return {
+    page,
+    limit,
+    total,
+    products: productsWithCartStatus,
+  };
 };
 
 exports.createProduct = async (data, files) => {
@@ -194,19 +204,26 @@ exports.createProduct = async (data, files) => {
   const exists = await Products.findOne({ code });
 
   if (exists) {
-    if (files) {
-      await Promise.all(files.map((file) => deleteFile(file.path)));
-    }
     throw new AppError("محصولی با این کد قبلاً ثبت شده است", 400);
   }
 
-  const images = files
-    ? files.map((file) => {
-        return `/uploads/${file.filename}`;
-      })
-    : [];
+  let images = [];
 
-  let isCategory = await Categories.findById(category);
+  if (files?.length) {
+    const uploadedImages = await Promise.all(
+      files.map((file) =>
+        imagekit.upload({
+          file: file.buffer,
+          fileName: file.originalname,
+          folder: "/products",
+        }),
+      ),
+    );
+
+    images = uploadedImages.map((image) => image.url);
+  }
+
+  const isCategory = await Categories.findById(category);
 
   if (!isCategory) {
     throw new AppError("دسته‌بندی با این شناسه یافت نشد", 404);
@@ -233,6 +250,7 @@ exports.createProduct = async (data, files) => {
     deleteCache(cacheKeys.LANDING),
     deleteCache(cacheKeys.SHOP_FILTERS),
   ]);
+
   return product;
 };
 
@@ -240,6 +258,7 @@ exports.deleteProduct = async (user, code) => {
   if (user.role !== "admin") {
     throw new AppError("کاربر شما دسترسی برای حذف محصول ندارد", 400);
   }
+
   if (!code) {
     throw new AppError("کد محصول ارسال نشده است", 400);
   }
@@ -251,11 +270,13 @@ exports.deleteProduct = async (user, code) => {
   if (!deletedProduct) {
     throw new AppError("کالایی یافت نشد", 404);
   }
+
   await Promise.all([
     deleteCache(cacheKeys.LANDING),
     deleteCache(cacheKeys.SHOP_FILTERS),
     deleteCache(`${cacheKeys.PRODUCT}-${code}`),
   ]);
+
   return deletedProduct;
 };
 
@@ -274,17 +295,18 @@ exports.updateProduct = async (code, data, files) => {
     }
   }
 
-  if (files && files.length > 0) {
-    if (product.images?.length) {
-      await Promise.all(
-        product.images.map((image) => {
-          const path = image.replace("/uploads/", "uploads/");
-          return deleteFile(path);
+  if (files?.length) {
+    const uploadedImages = await Promise.all(
+      files.map((file) =>
+        imagekit.upload({
+          file: file.buffer,
+          fileName: file.originalname,
+          folder: "/products",
         }),
-      );
-    }
+      ),
+    );
 
-    product.images = files.map((file) => `/uploads/${file.filename}`);
+    product.images = uploadedImages.map((image) => image.url);
   }
 
   Object.keys(data).forEach((key) => {

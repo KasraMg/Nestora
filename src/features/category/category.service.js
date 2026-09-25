@@ -1,23 +1,29 @@
 const Category = require("./category.model");
 const AppError = require("../../utils/app-error");
-const deleteFile = require("../../utils/delete-file");
 const cacheKeys = require("../../utils/constants/cache-keys");
 const remember = require("../../services/remember");
 const { deleteCache } = require("../../services/cache");
+const imagekit = require("../../config/imagekit");
 
 exports.createCategory = async (data, file) => {
   const { name, slug, description, isActive } = data;
 
-  const image = file ? `/uploads/${file.filename}` : null;
-
   const exists = await Category.findOne({ slug });
 
   if (exists) {
-    if (file) {
-      await deleteFile(file?.path);
-    }
-
     throw new AppError("این اسلاگ قبلاً ثبت شده است", 400);
+  }
+
+  let image = null;
+
+  if (file) {
+    const uploadedImage = await imagekit.upload({
+      file: file.buffer,
+      fileName: file.originalname,
+      folder: "/categories",
+    });
+
+    image = uploadedImage.url;
   }
 
   const category = new Category({

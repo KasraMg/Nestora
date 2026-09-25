@@ -1,17 +1,31 @@
 const Article = require("./article.model");
+
 const AppError = require("../../utils/app-error");
 const cacheKeys = require("../../utils/constants/cache-keys");
 const remember = require("../../services/remember");
 const { deleteCache } = require("../../services/cache");
+const imagekit = require("../../config/imagekit");
 
 exports.createArticle = async (user, data, file) => {
+
   const { name, slug, body, short_description, isActive } = data;
-  const image = file ? `/uploads/${file.filename}` : null;
 
   const exists = await Article.findOne({ slug });
 
   if (exists) {
     throw new AppError("این اسلاگ قبلا ثبت شده است", 400);
+  }
+
+  let image = null;
+
+  if (file) {
+    const uploadedImage = await imagekit.upload({
+      file: file.buffer,
+      fileName: file.originalname,
+      folder: "/articles",
+    });
+
+    image = uploadedImage.url;
   }
 
   const article = new Article({
@@ -56,17 +70,23 @@ exports.getArticle = async (slug) => {
 
 exports.getArticles = async (data) => {
   const { name, sort, page, limit } = data;
+
   const pageNumber = Math.max(1, Number(page) || 1);
   const limitNumber = Math.max(1, Math.min(100, Number(limit) || 10));
 
   const skip = (pageNumber - 1) * limitNumber;
 
   const filter = {};
+
   if (name) {
-    filter.name = { $regex: String(name).trim(), $options: "i" };
+    filter.name = {
+      $regex: String(name).trim(),
+      $options: "i",
+    };
   }
 
   let sortStage = { createdAt: -1 };
+
   if (sort) {
     if (sort.startsWith("-")) {
       const key = sort.substring(1);
@@ -76,6 +96,7 @@ exports.getArticles = async (data) => {
       sortStage = { [key]: 1 };
     }
   }
+
   const total = await Article.countDocuments(filter);
 
   const articles = await Article.find(filter)
@@ -84,7 +105,12 @@ exports.getArticles = async (data) => {
     .limit(limitNumber)
     .lean();
 
-  return { articles, page: pageNumber, limit: limitNumber, total };
+  return {
+    articles,
+    page: pageNumber,
+    limit: limitNumber,
+    total,
+  };
 };
 
 exports.deleteArticle = async (slug) => {
@@ -99,17 +125,17 @@ exports.deleteArticle = async (slug) => {
   if (!deletedArticle) {
     throw new AppError("مقاله ای با این اسلاگ یافت نشد", 404);
   }
+
   await Promise.all([
     deleteCache(`${cacheKeys.ARTICLE}-${slug}`),
     deleteCache(cacheKeys.LANDING),
   ]);
-  
-  return deletedArticle
+
+  return deletedArticle;
 };
 
 exports.editArticle = async (slug, data, file) => {
   const { name, newSlug, body, short_description, isActive } = data;
-  const image = file ? `/uploads/${file.filename}` : null;
 
   const article = await Article.findOne({ slug });
 
@@ -125,13 +151,27 @@ exports.editArticle = async (slug, data, file) => {
     }
   }
 
+  if (file) {
+    const uploadedImage = await imagekit.upload({
+      file: file.buffer,
+      fileName: file.originalname,
+      folder: "/articles",
+    });
+
+    article.image = uploadedImage.url;
+  }
+
   if (name !== undefined) article.name = name;
   if (newSlug !== undefined) article.slug = newSlug;
-  if (image !== undefined) article.image = image;
   if (body !== undefined) article.body = body;
-  if (short_description !== undefined)
+
+  if (short_description !== undefined) {
     article.short_description = short_description;
-  if (isActive !== undefined) article.isActive = isActive;
+  }
+
+  if (isActive !== undefined) {
+    article.isActive = isActive;
+  }
 
   await article.save();
 
@@ -145,5 +185,6 @@ exports.editArticle = async (slug, data, file) => {
   }
 
   await Promise.all(promises);
+
   return article;
 };

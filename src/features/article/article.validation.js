@@ -10,7 +10,7 @@ const createArticleSchema = z.object({
       .trim()
       .min(1, "اسم مقاله الزامی است"),
 
-    slug, 
+    slug,
 
     short_description: z
       .string({
@@ -32,15 +32,22 @@ const createArticleSchema = z.object({
 
 const updateArticleSchema = z.object({
   body: z.object({
-    name: z.string().trim().min(1).optional(),
-    slug: z.string().trim().min(1).optional(),
-    image: z.string().trim().min(1).optional(),
-    short_description: z.string().trim().min(1).optional(),
-    body: z.string().trim().min(1).optional(),
-    isActive: z.preprocess((value) => value === "true", z.boolean()).optional(),
+    name: z.string().min(1).optional(),
+    newSlug: z.string().min(1).optional(),
+    body: z.string().min(1).optional(),
+    short_description: z.string().min(1).optional(),
+    isActive: z
+      .string()
+      .transform((value) => value === "true")
+      .optional(),
   }),
-});
 
+  params: z.object({
+    slug: z.string().min(1),
+  }),
+
+  query: z.object({}).optional(),
+});
 module.exports = {
   createArticleSchema,
   updateArticleSchema,
