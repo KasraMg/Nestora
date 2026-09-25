@@ -21,6 +21,9 @@ exports.getOrder = async (trackingCode) => {
 exports.getOrders = async (user) => {
   return await Order.find({ user: user._id }).populate("products.product");
 };
+exports.getAllOrders = async () => {
+  return await Order.find().populate("products.product");
+};
 
 exports.createOrder = async (user, information) => {
   await user.populate("cart.product");
