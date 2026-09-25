@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
+const path = require("path");
 const connectDB = require("./src/config/db");
 const redisClient = require("./src/config/redis");
 const swaggerSpec = require("./swagger");
@@ -28,16 +29,32 @@ app.use(async (req, res, next) => {
 
 const swaggerUiPath = swaggerUiDist.getAbsoluteFSPath();
 
-app.use("/api-docs", express.static(swaggerUiPath));
+// Swagger assets
+app.get("/api-docs/swagger-ui.css", (req, res) => {
+  res.sendFile(path.join(swaggerUiPath, "swagger-ui.css"));
+});
 
-// vercel config
+app.get("/api-docs/swagger-ui-bundle.js", (req, res) => {
+  res.sendFile(path.join(swaggerUiPath, "swagger-ui-bundle.js"));
+});
+
+app.get("/api-docs/swagger-ui-standalone-preset.js", (req, res) => {
+  res.sendFile(
+    path.join(swaggerUiPath, "swagger-ui-standalone-preset.js")
+  );
+});
+
+// Swagger UI
 app.get("/api-docs", (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
       <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+        />
 
         <title>Homano API Documentation</title>
 
