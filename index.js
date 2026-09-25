@@ -1,8 +1,6 @@
 require("dotenv").config();
 const env = require("./src/config/env");
 const express = require("express");
-const path = require("path");
-const fs = require("fs");
 const connectDB = require("./src/config/db");
 const swaggerSpec = require("./swagger");
 const swaggerUi = require("swagger-ui-express");
@@ -22,13 +20,6 @@ app.set("trust proxy", 1);
   //   // console.warn("Redis unavailable:", err.message);
   // }
 })();
-
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -55,24 +46,24 @@ app.use(errorMiddleware);
 
 const PORT = env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📚 Swagger docs available at http://localhost:${PORT}/api-docs`);
   console.log(`🔗 API base: http://localhost:${PORT}/api`);
 });
 
-process.on("SIGINT", () => {
-  gracefulShutdown(server);
-});
+// process.on("SIGINT", () => {
+//   gracefulShutdown(server);
+// });
 
-process.on("SIGTERM", () => {
-  gracefulShutdown(server);
-});
+// process.on("SIGTERM", () => {
+//   gracefulShutdown(server);
+// });
 
-process.on("unhandledRejection", () => {
-  gracefulShutdown(server);
-});
+// process.on("unhandledRejection", () => {
+//   gracefulShutdown(server);
+// });
 
-process.on("uncaughtException", () => {
-  gracefulShutdown(server);
-});
+// process.on("uncaughtException", () => {
+//   gracefulShutdown(server);
+// });
