@@ -1,12 +1,9 @@
 require("dotenv").config();
 
 const express = require("express");
-const path = require("path");
 const connectDB = require("./src/config/db");
 const redisClient = require("./src/config/redis");
-const swaggerSpec = require("./swagger");
 const routes = require("./src/routes");
-const swaggerUiDist = require("swagger-ui-dist");
 
 const app = express();
 
@@ -27,67 +24,15 @@ app.use(async (req, res, next) => {
   }
 });
 
-const swaggerUiPath = swaggerUiDist.getAbsoluteFSPath();
-
-// Swagger assets
-app.get("/api-docs/swagger-ui.css", (req, res) => {
-  res.sendFile(path.join(swaggerUiPath, "swagger-ui.css"));
-});
-
-app.get("/api-docs/swagger-ui-bundle.js", (req, res) => {
-  res.sendFile(path.join(swaggerUiPath, "swagger-ui-bundle.js"));
-});
-
-app.get("/api-docs/swagger-ui-standalone-preset.js", (req, res) => {
-  res.sendFile(
-    path.join(swaggerUiPath, "swagger-ui-standalone-preset.js")
+if (process.env.NODE_ENV !== "production") {
+  const swaggerSpec = require("./swagger");
+  const swaggerUi = require("swagger-ui-express");
+  app.use(
+    "/api-docs",
+    swaggerUi.serveFiles(swaggerSpec),
+    swaggerUi.setup(swaggerSpec),
   );
-});
-
-// Swagger UI
-app.get("/api-docs", (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0"
-        />
-
-        <title>Homano API Documentation</title>
-
-        <link
-          rel="stylesheet"
-          href="/api-docs/swagger-ui.css"
-        />
-      </head>
-
-      <body>
-        <div id="swagger-ui"></div>
-
-        <script src="/api-docs/swagger-ui-bundle.js"></script>
-        <script src="/api-docs/swagger-ui-standalone-preset.js"></script>
-
-        <script>
-          window.onload = () => {
-            window.ui = SwaggerUIBundle({
-              spec: ${JSON.stringify(swaggerSpec)},
-              dom_id: "#swagger-ui",
-              deepLinking: true,
-              presets: [
-                SwaggerUIBundle.presets.apis,
-                SwaggerUIStandalonePreset
-              ],
-              layout: "StandaloneLayout"
-            });
-          };
-        </script>
-      </body>
-    </html>
-  `);
-});
+}
 
 const security = require("./src/middlewares/security.middleware");
 
@@ -123,3 +68,19 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 module.exports = app;
+
+// process.on("SIGINT", () => {
+//   gracefulShutdown(server);
+// });
+
+// process.on("SIGTERM", () => {
+//   gracefulShutdown(server);
+// });
+
+// process.on("unhandledRejection", () => {
+//   gracefulShutdown(server);
+// });
+
+// process.on("uncaughtException", () => {
+//   gracefulShutdown(server);
+// });
