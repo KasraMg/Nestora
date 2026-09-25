@@ -1,11 +1,11 @@
 require("dotenv").config();
 
 const express = require("express");
+const path = require("path");
 const connectDB = require("./src/config/db");
 const redisClient = require("./src/config/redis");
-const swaggerSpec = require("./swagger");
-const swaggerUi = require("swagger-ui-express");
 const routes = require("./src/routes");
+const swaggerUiDist = require("swagger-ui-dist");
 
 const app = express();
 
@@ -26,12 +26,14 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Swagger
-app.use(
-  "/api-docs",
-  swaggerUi.serveFiles(swaggerSpec),
-  swaggerUi.setup(swaggerSpec),
-);
+// Swagger UI
+const swaggerUiPath = swaggerUiDist.getAbsoluteFSPath();
+
+app.use("/api-docs", express.static(swaggerUiPath));
+
+app.get("/api-docs", (req, res) => {
+  res.sendFile(path.join(swaggerUiPath, "index.html"));
+});
 
 const security = require("./src/middlewares/security.middleware");
 
@@ -55,6 +57,16 @@ app.use("/api", routes);
 const errorMiddleware = require("./src/middlewares/error.middleware");
 
 app.use(errorMiddleware);
+
+const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📚 Swagger docs: http://localhost:${PORT}/api-docs`);
+    console.log(`🔗 API base: http://localhost:${PORT}/api`);
+  });
+}
 
 module.exports = app;
 
